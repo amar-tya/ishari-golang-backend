@@ -55,30 +55,6 @@ go run cmd/api/main.go
 
 Server akan berjalan di `http://localhost:3000`
 
-## 📝 Environment Variables
-
-```env
-# Server Configuration
-SERVER_HOST=localhost
-SERVER_PORT=3000
-IDLE_TIMEOUT_SEC=5
-WRITE_TIMEOUT_SEC=5
-READ_TIMEOUT_SEC=5
-
-# Database Configuration
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=postgres
-DB_PASSWORD=postgres
-DB_NAME=ishari
-DB_SSLMODE=disable
-DB_MAX_IDLE_CONNS=10
-DB_MAX_OPEN_CONNS=100
-DB_CONN_MAX_LIFETIME_MIN=60
-DB_CONN_MAX_IDLE_TIME_MIN=10
-DB_LOG_LEVEL=warn
-```
-
 ## 🧪 Testing
 
 ```bash
