@@ -1,0 +1,14 @@
+2025/11/08 13:54:42 ERROR: CreateBook validation failed error Key: 'CreateBookRequest.CoverImageURL' Error:Field validation for 'CoverImageURL' failed on the 'url' tag
+2025/11/08 13:54:47 ERROR: http error method GET path / error Request Timeout
+2025/11/08 13:59:17 ERROR: CreateBook validation failed error Key: 'CreateBookRequest.CoverImageURL' Error:Field validation for 'CoverImageURL' failed on the 'url' tag
+2025/11/08 13:59:22 ERROR: http error method GET path / error Request Timeout
+2025/11/08 13:59:42 ERROR: http error method GET path / error Request Timeout
+2025/11/08 14:00:39 ERROR: http error method GET path / error Request Timeout
+2025/12/09 08:20:15 ERROR: http error method GET path / error Request Timeout
+2025/12/09 10:15:32 ERROR: http error method GET path /api/v1/books/2 error Cannot GET /api/v1/books/2
+2025/12/09 10:15:38 ERROR: http error method GET path / error Request Timeout
+2025/12/09 10:15:40 ERROR: http error method GET path /api/v1/books/1 error Cannot GET /api/v1/books/1
+2025/12/09 10:15:45 ERROR: http error method GET path / error Request Timeout
+2025/12/09 10:17:09 ERROR: http error method GET path /api/v1/books/1 error Cannot GET /api/v1/books/1
+2025/12/09 10:17:14 ERROR: http error method GET path / error Request Timeout
+2025/12/09 10:18:34 ERROR: http error method GET path / error Request Timeout
