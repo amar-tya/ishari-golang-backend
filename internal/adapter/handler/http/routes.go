@@ -10,6 +10,7 @@ import (
 type Controllers struct {
 	Health *controller.HealthController
 	Book   *controller.BookController
+	User   *controller.UserController
 }
 
 // RegisterRoutes wires all module routes under a common API grouping.
@@ -20,5 +21,8 @@ func RegisterRoutes(app *fiber.App, ctrls Controllers) {
 	}
 	if ctrls.Book != nil {
 		RegisterBookRoutes(v1, ctrls.Book)
+	}
+	if ctrls.User != nil {
+		RegisterUserRoutes(v1, ctrls.User)
 	}
 }

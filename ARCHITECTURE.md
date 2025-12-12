@@ -16,9 +16,13 @@ ishari-backend/
 │   │
 │   ├── core/                       # DOMAIN LAYER (Pure Business Logic)
 │   │   ├── entity/                 # Data Structures (Structs Only)
+│   │   ├── factory/                # Test Data Factories
 │   │   ├── port/                   # Interface / Contracts (What we need)
-│   │   │   └── repository/         # Repository Interfaces
+│   │   │   ├── repository/         # Repository Interfaces
+│   │   │   └── usecase/            # UseCase Interfaces (DIP)
 │   │   └── usecase/                # Business Logic Implementation
+│   │       ├── user/               # User feature (per-feature package)
+│   │       └── book/               # Book feature
 │   │
 │   └── adapter/                    # ADAPTER LAYER (Implementation Details)
 │       ├── repository/             # DATA LAYER (Database Impl)
@@ -29,6 +33,7 @@ ishari-backend/
 │               ├── middleware/
 │               └── dto/            # Data Transfer Objects
 └── pkg/                            # Shared Utilities (Config, Logger, Errors)
+    ├── hasher/                     # Password hashing adapters
 ```
 
 ## Layer Architecture
@@ -37,9 +42,13 @@ ishari-backend/
 Ini adalah jantung aplikasi. Layer ini **TIDAK BOLEH** bergantung pada library eksternal teknis (seperti Gorm, Fiber, Redis).
 
 *   **Entity (`core/entity`)**: Definisi objek bisnis (misal: `Book`, `User`). Hanya berisi struct.
-*   **Port (`core/port`)**: Interface/Kontrak. Mendefinisikan *apa* yang dibutuhkan oleh aplikasi, tapi tidak tahu *bagaimana* cara kerjanya.
-    *   Contoh: `BookRepository` interface ada di sini.
-*   **UseCase (`core/usecase`)**: Logika bisnis utama. Menggabungkan entity dan menggunakan port untuk menyelesaikan tugas.
+*   **Factory (`core/factory`)**: Builder pattern untuk membuat test data. Mirip Laravel Factory tapi untuk unit testing.
+*   **Port (`core/port`)**: Interface/Kontrak mengikuti **Dependency Inversion Principle**.
+    *   `port/repository/`: Interface untuk data access (diimplementasi oleh adapter/repository)
+    *   `port/usecase/`: Interface untuk business logic (diimplementasi oleh usecase/)
+    *   Contoh: `UserRepository` dan `UserUseCase` interface ada di sini.
+*   **UseCase (`core/usecase`)**: Implementasi logika bisnis. Diorganisir per-feature dalam package terpisah.
+    *   Contoh: `usecase/user/user_usecase.go` implements `port/usecase/user.go`
 
 ### 2. Adapter Layer (`internal/adapter`)
 Layer ini berisi detail teknis. Layer ini tugasnya memenuhi kontrak (interface) yang dibuat oleh Core, atau menghubungkan Core dengan dunia luar.
@@ -57,35 +66,100 @@ Tempat dimana semua komponen "dicolokkan" (wired together).
 *   UseCase dimasukkan ke Handler.
 *   Handler didaftarkan ke Server.
 
-## Dependency Rule
+## Dependency Rule (Dependency Inversion Principle)
 
 Arah ketergantungan (import) harus selalu **mengarah ke dalam**:
 
 ```
-DB Impl (Adapter) ────┐
-                      ▼
-HTTP Impl (Adapter) ──▶  Core (Domain/Ports/UseCase)
+┌─────────────────────────────────────────────────┐
+│  Adapter Layer (Infrastructure)                 │
+│  - postgres/user_repository.go                  │
+│  - http/controller/user_controller.go           │
+│  - pkg/hasher/bcrypt.go                         │
+└────────────────┬────────────────────────────────┘
+                 │ implements
+                 ▼
+┌─────────────────────────────────────────────────┐
+│  Port Layer (Interfaces)                        │
+│  - port/repository/user_repository.go           │
+│  - port/usecase/user.go                         │
+└────────────────┬────────────────────────────────┘
+                 │ depends on
+                 ▼
+┌─────────────────────────────────────────────────┐
+│  Core Layer (Business Logic)                    │
+│  - usecase/user/user_usecase.go                 │
+│  - entity/user.go                               │
+└─────────────────────────────────────────────────┘
 ```
 
+**Prinsip:**
 *   **Core** tidak boleh import **Adapter**.
-*   **Adapter** bergantung pada **Core** (karena adapter mengimplementasikan port yang ada di core).
+*   **Core** mendefinisikan interface di **Port**.
+*   **Adapter** mengimplementasikan interface dari **Port**.
+*   Dependencies mengalir dari luar ke dalam (Adapter → Port → Core).
 
 ## Menambah Fitur Baru
 
-Contoh: Menambah fitur **Product**.
+Contoh: Menambah fitur **Product** dengan Clean Architecture.
 
-1.  **Core/Entity**: Buat `core/entity/product.go` (Struct `Product`).
-2.  **Core/Port**: Buat `core/port/repository/product_repo.go` (Interface `ProductRepository`).
-3.  **Adapter/Repository**: Buat `adapter/repository/postgres/product_repo.go` (Implementasi DB).
-4.  **Core/UseCase**: Buat `core/usecase/product_usecase.go` (Logic).
-5.  **Adapter/Handler**: Buat `adapter/handler/http/controller/product_controller.go` (HTTP Endpoints).
-6.  **Bootstrap**: Wire semuanya di `internal/bootstrap/bootstrap.go`.
+### 1. Domain Layer (Core)
+1.  **Entity**: `core/entity/product.go` - Struct `Product`
+2.  **Port Interfaces**:
+    *   `core/port/repository/product_repository.go` - Interface `ProductRepository`
+    *   `core/port/usecase/product.go` - Interface `ProductUseCase` + Input DTOs
+3.  **UseCase Implementation**: `core/usecase/product/product_usecase.go` - Business logic
+4.  **Domain Errors**: `core/usecase/product/errors.go` - Domain-specific errors
+5.  **Factory**: `core/factory/product_factory.go` - Test data builder
 
-## Testing
+### 2. Adapter Layer
+6.  **Repository**: `adapter/repository/postgres/product_repository.go` - DB implementation
+7.  **HTTP DTOs**: `adapter/handler/http/dto/product.go` - Request/Response
+8.  **Controller**: `adapter/handler/http/controller/product_controller.go` - HTTP handlers
+9.  **Routes**: `adapter/handler/http/product_routes.go` - Route registration
 
+### 3. Wiring
+10. **Bootstrap**: Wire dependencies di `internal/bootstrap/bootstrap.go`
+11. **Routes**: Register di `adapter/handler/http/routes.go`
+
+### 4. Testing
+12. **Unit Tests**: `core/usecase/product/product_usecase_test.go` - dengan mock repository
+
+## Testing Strategy
+
+### Unit Testing
 Dengan struktur ini, Unit Test sangat mudah dibuat:
-*   Test **UseCase** dengan melakukan **Mocking** pada **Repository Port**.
-*   Kita tidak butuh database nyata untuk mengetes logika bisnis.
+*   Test **UseCase** dengan **Mock Repository** (tidak butuh DB nyata)
+*   Gunakan **Factory** untuk membuat test data
+*   Mock semua dependencies via interface
+
+Contoh:
+```go
+// Mock repository
+mockRepo := &MockUserRepository{
+    GetByIDFunc: func(ctx, id) (*entity.User, error) {
+        return factory.NewUserFactory().WithID(id).Build(), nil
+    },
+}
+
+// Test usecase
+uc := user.NewUserUseCase(mockRepo, mockHasher)
+result, err := uc.GetByID(ctx, 1)
+```
+
+### Integration Testing
+Untuk test dengan DB real, bisa buat factory yang save ke DB:
+```go
+type UserDBFactory struct {
+    db *gorm.DB
+}
+
+func (f *UserDBFactory) Create() *entity.User {
+    user := factory.NewUserFactory().Build()
+    f.db.Create(user)
+    return user
+}
+```
 
 ## Command Penting
 
