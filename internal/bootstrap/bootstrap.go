@@ -8,10 +8,12 @@ import (
 	"ishari-backend/internal/adapter/handler/http/middleware"
 	"ishari-backend/internal/adapter/repository/postgres"
 	"ishari-backend/internal/core/usecase"
+	authusecase "ishari-backend/internal/core/usecase/auth"
 	userusecase "ishari-backend/internal/core/usecase/user"
 	"ishari-backend/pkg/config"
 	"ishari-backend/pkg/database"
 	"ishari-backend/pkg/hasher"
+	"ishari-backend/pkg/jwt"
 	"ishari-backend/pkg/logger"
 	"ishari-backend/pkg/validation"
 )
@@ -38,16 +40,22 @@ func Build(cfg config.Config) (*App, error) {
 
 	// Infrastructure
 	passwordHasher := hasher.NewBcryptHasher(12)
+	jwtService := jwt.NewJWTService(cfg.JWT.Secret, cfg.JWT.AccessTokenTTL, cfg.JWT.RefreshTokenTTL)
 
 	// Repositories
 	bookRepo := postgres.NewBookRepository(db)
 	healthRepo := postgres.NewHealthRepository(db)
 	userRepo := postgres.NewUserRepository(db)
+	refreshTokenRepo := postgres.NewRefreshTokenRepository(db)
+
+	// Token blacklist (database-backed)
+	tokenBlacklist := jwt.NewDatabaseBlacklist(refreshTokenRepo)
 
 	// Use cases
 	healthUC := usecase.NewHealthUseCase(healthRepo)
 	bookUC := usecase.NewBookUseCase(bookRepo)
 	userUC := userusecase.NewUserUseCase(userRepo, passwordHasher)
+	authUC := authusecase.NewAuthUseCase(userRepo, jwtService, tokenBlacklist, passwordHasher)
 
 	// HTTP server
 	server := http.NewServer(cfg.Server, l)
@@ -58,10 +66,15 @@ func Build(cfg config.Config) (*App, error) {
 	healthCtrl := controller.NewHealthController(healthUC)
 	bookCtrl := controller.NewBookController(bookUC, v, l)
 	userCtrl := controller.NewUserController(userUC, v, l)
+	authCtrl := controller.NewAuthController(authUC, v, l)
+
 	http.RegisterRoutes(server.App, http.Controllers{
 		Health: healthCtrl,
 		Book:   bookCtrl,
 		User:   userCtrl,
+		Auth:   authCtrl,
+	}, &http.AuthDeps{
+		AuthUC: authUC,
 	})
 
 	return &App{Server: server, Cleanup: cleanup}, nil

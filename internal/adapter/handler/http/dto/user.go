@@ -36,3 +36,16 @@ type LoginResponse struct {
 	User  UserResponse `json:"user"`
 	Token string       `json:"token,omitempty"` // For future JWT implementation
 }
+
+// AuthResponse represents the HTTP response for authentication
+type AuthResponse struct {
+	User         UserResponse `json:"user"`
+	AccessToken  string       `json:"access_token"`
+	RefreshToken string       `json:"refresh_token"`
+	ExpiresAt    string       `json:"expires_at"`
+}
+
+// RefreshTokenRequest represents the HTTP request for refreshing tokens
+type RefreshTokenRequest struct {
+	RefreshToken string `json:"refresh_token" validate:"required"`
+}

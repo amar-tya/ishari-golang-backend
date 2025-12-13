@@ -30,9 +30,16 @@ type DatabaseConfig struct {
 	LogLevel        logger.LogLevel
 }
 
+type JWTConfig struct {
+	Secret          string
+	AccessTokenTTL  time.Duration
+	RefreshTokenTTL time.Duration
+}
+
 type Config struct {
 	Server   ServerConfig
 	Database DatabaseConfig
+	JWT      JWTConfig
 }
 
 func Load() Config {
@@ -55,6 +62,11 @@ func Load() Config {
 	viper.SetDefault("DB_CONN_MAX_LIFETIME_MIN", 60)
 	viper.SetDefault("DB_CONN_MAX_IDLE_TIME_MIN", 10)
 	viper.SetDefault("DB_LOG_LEVEL", "warn")
+
+	// JWT defaults
+	viper.SetDefault("JWT_SECRET", "your-super-secret-key-change-in-production")
+	viper.SetDefault("JWT_ACCESS_TOKEN_TTL_MIN", 15)
+	viper.SetDefault("JWT_REFRESH_TOKEN_TTL_DAYS", 7)
 
 	viper.AutomaticEnv()
 
@@ -90,6 +102,11 @@ func Load() Config {
 			ConnMaxLifetime: time.Duration(viper.GetInt("DB_CONN_MAX_LIFETIME_MIN")) * time.Minute,
 			ConnMaxIdleTime: time.Duration(viper.GetInt("DB_CONN_MAX_IDLE_TIME_MIN")) * time.Minute,
 			LogLevel:        logLevel,
+		},
+		JWT: JWTConfig{
+			Secret:          viper.GetString("JWT_SECRET"),
+			AccessTokenTTL:  time.Duration(viper.GetInt("JWT_ACCESS_TOKEN_TTL_MIN")) * time.Minute,
+			RefreshTokenTTL: time.Duration(viper.GetInt("JWT_REFRESH_TOKEN_TTL_DAYS")) * 24 * time.Hour,
 		},
 	}
 }

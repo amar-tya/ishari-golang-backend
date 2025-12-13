@@ -2,6 +2,7 @@ package http
 
 import (
 	"ishari-backend/internal/adapter/handler/http/controller"
+	portuc "ishari-backend/internal/core/port/usecase"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -11,10 +12,16 @@ type Controllers struct {
 	Health *controller.HealthController
 	Book   *controller.BookController
 	User   *controller.UserController
+	Auth   *controller.AuthController
+}
+
+// AuthDeps holds auth-related dependencies for route registration
+type AuthDeps struct {
+	AuthUC portuc.AuthUseCase
 }
 
 // RegisterRoutes wires all module routes under a common API grouping.
-func RegisterRoutes(app *fiber.App, ctrls Controllers) {
+func RegisterRoutes(app *fiber.App, ctrls Controllers, authDeps *AuthDeps) {
 	v1 := app.Group("/api/v1")
 	if ctrls.Health != nil {
 		RegisterHealthRoutes(v1, ctrls.Health)
@@ -24,5 +31,8 @@ func RegisterRoutes(app *fiber.App, ctrls Controllers) {
 	}
 	if ctrls.User != nil {
 		RegisterUserRoutes(v1, ctrls.User)
+	}
+	if ctrls.Auth != nil && authDeps != nil {
+		RegisterAuthRoutes(v1, ctrls.Auth, authDeps.AuthUC)
 	}
 }
