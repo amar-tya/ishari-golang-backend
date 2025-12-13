@@ -23,16 +23,22 @@ type AuthDeps struct {
 // RegisterRoutes wires all module routes under a common API grouping.
 func RegisterRoutes(app *fiber.App, ctrls Controllers, authDeps *AuthDeps) {
 	v1 := app.Group("/api/v1")
+
+	// Health routes (always public)
 	if ctrls.Health != nil {
 		RegisterHealthRoutes(v1, ctrls.Health)
 	}
-	if ctrls.Book != nil {
-		RegisterBookRoutes(v1, ctrls.Book)
-	}
-	if ctrls.User != nil {
-		RegisterUserRoutes(v1, ctrls.User)
-	}
-	if ctrls.Auth != nil && authDeps != nil {
-		RegisterAuthRoutes(v1, ctrls.Auth, authDeps.AuthUC)
+
+	// Book and User routes (require authDeps for protected endpoints)
+	if authDeps != nil && authDeps.AuthUC != nil {
+		if ctrls.Book != nil {
+			RegisterBookRoutes(v1, ctrls.Book, authDeps.AuthUC)
+		}
+		if ctrls.User != nil {
+			RegisterUserRoutes(v1, ctrls.User, authDeps.AuthUC)
+		}
+		if ctrls.Auth != nil {
+			RegisterAuthRoutes(v1, ctrls.Auth, authDeps.AuthUC)
+		}
 	}
 }

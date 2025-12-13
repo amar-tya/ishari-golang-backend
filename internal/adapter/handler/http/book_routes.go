@@ -2,14 +2,23 @@ package http
 
 import (
 	"ishari-backend/internal/adapter/handler/http/controller"
+	"ishari-backend/internal/adapter/handler/http/middleware"
+	portuc "ishari-backend/internal/core/port/usecase"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-func RegisterBookRoutes(router fiber.Router, h *controller.BookController) {
-	router.Get("/books", h.ListBooks)
-	router.Post("/books", h.CreateBook)
-	router.Put("/books/:id", h.EditBook)
-	router.Delete("/books/:id", h.DeleteBook)
-	router.Get("/books/:id", h.GetBookById)
+// RegisterBookRoutes registers all book-related HTTP routes
+func RegisterBookRoutes(router fiber.Router, ctrl *controller.BookController, authUC portuc.AuthUseCase) {
+	books := router.Group("/books")
+
+	// Public routes (read-only)
+	books.Get("/", ctrl.ListBooks)
+	books.Get("/:id", ctrl.GetBookById)
+
+	// Protected routes (require JWT token for mutations)
+	protected := books.Group("", middleware.AuthMiddleware(authUC))
+	protected.Post("/", ctrl.CreateBook)
+	protected.Put("/:id", ctrl.EditBook)
+	protected.Delete("/:id", ctrl.DeleteBook)
 }
