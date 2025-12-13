@@ -6,20 +6,21 @@ import (
 	"time"
 
 	"ishari-backend/internal/adapter/handler/http/dto"
-	"ishari-backend/internal/core/usecase"
 	"ishari-backend/pkg/logger"
 	"ishari-backend/pkg/validation"
 
 	"github.com/gofiber/fiber/v2"
+
+	portuc "ishari-backend/internal/core/port/usecase"
 )
 
 type BookController struct {
-	bookUseCase usecase.BookUseCase
+	bookUseCase portuc.BookUseCase
 	validate    validation.Validator
 	log         logger.Logger
 }
 
-func NewBookController(bookUseCase usecase.BookUseCase, v validation.Validator, l logger.Logger) *BookController {
+func NewBookController(bookUseCase portuc.BookUseCase, v validation.Validator, l logger.Logger) *BookController {
 	return &BookController{bookUseCase: bookUseCase, validate: v, log: l}
 }
 
@@ -43,7 +44,7 @@ func (h *BookController) CreateBook(c *fiber.Ctx) error {
 		})
 	}
 
-	in := usecase.CreateBookInput{
+	in := portuc.CreateBookInput{
 		Title:         req.Title,
 		Author:        req.Author,
 		Description:   req.Description,
@@ -142,7 +143,7 @@ func (h *BookController) EditBook(c *fiber.Ctx) error {
 		})
 	}
 
-	in := usecase.CreateBookInput{
+	in := portuc.CreateBookInput{
 		Title:         req.Title,
 		Author:        req.Author,
 		Description:   req.Description,

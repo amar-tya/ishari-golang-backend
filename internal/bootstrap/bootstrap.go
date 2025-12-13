@@ -9,6 +9,7 @@ import (
 	"ishari-backend/internal/adapter/repository/postgres"
 	"ishari-backend/internal/core/usecase"
 	authusecase "ishari-backend/internal/core/usecase/auth"
+	bookusecase "ishari-backend/internal/core/usecase/book"
 	userusecase "ishari-backend/internal/core/usecase/user"
 	"ishari-backend/pkg/config"
 	"ishari-backend/pkg/database"
@@ -53,7 +54,7 @@ func Build(cfg config.Config) (*App, error) {
 
 	// Use cases
 	healthUC := usecase.NewHealthUseCase(healthRepo)
-	bookUC := usecase.NewBookUseCase(bookRepo)
+	bookUC := bookusecase.NewBookUseCase(bookRepo)
 	userUC := userusecase.NewUserUseCase(userRepo, passwordHasher)
 	authUC := authusecase.NewAuthUseCase(userRepo, jwtService, tokenBlacklist, passwordHasher)
 

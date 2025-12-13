@@ -7,7 +7,8 @@ import (
 	"time"
 
 	"ishari-backend/internal/core/entity"
-	"ishari-backend/internal/core/usecase"
+	portusecase "ishari-backend/internal/core/port/usecase"
+	bookusecase "ishari-backend/internal/core/usecase/book"
 )
 
 // MockBookRepository is a manual mock for testing
@@ -63,7 +64,7 @@ func TestBookUseCase_ListBooks(t *testing.T) {
 		},
 	}
 
-	uc := usecase.NewBookUseCase(mockRepo)
+	uc := bookusecase.NewBookUseCase(mockRepo)
 	books, total, err := uc.ListBooks(context.Background(), 1, 10, "")
 
 	if err != nil {
@@ -90,8 +91,8 @@ func TestBookUseCase_CreateBook(t *testing.T) {
 		},
 	}
 
-	uc := usecase.NewBookUseCase(mockRepo)
-	input := usecase.CreateBookInput{
+	uc := bookusecase.NewBookUseCase(mockRepo)
+	input := portusecase.CreateBookInput{
 		Title: "New Book",
 	}
 
@@ -115,8 +116,8 @@ func TestBookUseCase_CreateBook_Error(t *testing.T) {
 		},
 	}
 
-	uc := usecase.NewBookUseCase(mockRepo)
-	input := usecase.CreateBookInput{
+	uc := bookusecase.NewBookUseCase(mockRepo)
+	input := portusecase.CreateBookInput{
 		Title: "New Book",
 	}
 
@@ -135,8 +136,8 @@ func TestBookUseCase_EditBook(t *testing.T) {
 		},
 	}
 
-	uc := usecase.NewBookUseCase(mockRepo)
-	input := usecase.CreateBookInput{
+	uc := bookusecase.NewBookUseCase(mockRepo)
+	input := portusecase.CreateBookInput{
 		Title: "Updated Book",
 	}
 
@@ -160,7 +161,7 @@ func TestBookUseCase_DeleteBook(t *testing.T) {
 		},
 	}
 
-	uc := usecase.NewBookUseCase(mockRepo)
+	uc := bookusecase.NewBookUseCase(mockRepo)
 
 	err := uc.DeleteBook(context.Background(), 1)
 	if err != nil {
@@ -183,7 +184,7 @@ func TestBookUseCase_GetBookById(t *testing.T) {
 		},
 	}
 
-	uc := usecase.NewBookUseCase(mockRepo)
+	uc := bookusecase.NewBookUseCase(mockRepo)
 
 	book, err := uc.GetBookById(context.Background(), 1)
 	if err != nil {
