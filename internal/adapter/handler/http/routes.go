@@ -9,10 +9,11 @@ import (
 
 // Controllers holds all HTTP controllers to be registered.
 type Controllers struct {
-	Health *controller.HealthController
-	Book   *controller.BookController
-	User   *controller.UserController
-	Auth   *controller.AuthController
+	Health  *controller.HealthController
+	Book    *controller.BookController
+	Chapter *controller.ChapterController
+	User    *controller.UserController
+	Auth    *controller.AuthController
 }
 
 // AuthDeps holds auth-related dependencies for route registration
@@ -33,6 +34,9 @@ func RegisterRoutes(app *fiber.App, ctrls Controllers, authDeps *AuthDeps) {
 	if authDeps != nil && authDeps.AuthUC != nil {
 		if ctrls.Book != nil {
 			RegisterBookRoutes(v1, ctrls.Book, authDeps.AuthUC)
+		}
+		if ctrls.Chapter != nil {
+			RegisterChapterRoutes(v1, ctrls.Chapter, authDeps.AuthUC)
 		}
 		if ctrls.User != nil {
 			RegisterUserRoutes(v1, ctrls.User, authDeps.AuthUC)
