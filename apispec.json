@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:3000/api/v1",
+      "url": "http://localhost:3000/api",
       "description": "Local development server"
     }
   ],
@@ -353,6 +353,380 @@
           },
           "404": {
             "description": "Book not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/chapters": {
+      "get": {
+        "summary": "List chapters",
+        "operationId": "listChapters",
+        "tags": [
+          "Chapters"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (1-indexed). Defaults to 1.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of items per page. Defaults to 20.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 20
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Case-insensitive search term applied to title or category.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paged list of chapters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChapterListResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error when fetching chapters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a chapter",
+        "operationId": "createChapter",
+        "tags": [
+          "Chapters"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateChapterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Chapter created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "chapter created successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ChapterResponse"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error or book not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error when creating chapter",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/chapters/{id}": {
+      "get": {
+        "summary": "Get chapter by ID",
+        "operationId": "getChapterById",
+        "tags": [
+          "Chapters"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chapter details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ChapterResponse"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Chapter not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update chapter",
+        "operationId": "updateChapter",
+        "tags": [
+          "Chapters"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateChapterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Chapter updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/ChapterResponse"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Chapter not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete chapter",
+        "operationId": "deleteChapter",
+        "tags": [
+          "Chapters"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chapter deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "example": "chapter deleted successfully"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Chapter not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/chapters/book/{bookId}": {
+      "get": {
+        "summary": "Get chapters by book ID",
+        "operationId": "getChaptersByBookId",
+        "tags": [
+          "Chapters"
+        ],
+        "parameters": [
+          {
+            "name": "bookId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of chapters for the specified book",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChapterListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid book ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
             "content": {
               "application/json": {
                 "schema": {
@@ -1290,6 +1664,164 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/BookResponse"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ListMeta"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "ChapterResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "book_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "chapter_number": {
+            "type": "integer",
+            "example": 1
+          },
+          "title": {
+            "type": "string",
+            "example": "Al-Fatihah"
+          },
+          "category": {
+            "type": "string",
+            "example": "Makki"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "example": "The Opening Chapter"
+          },
+          "total_verses": {
+            "type": "integer",
+            "example": 7
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-12-01T10:00:00Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-12-01T10:00:00Z"
+          }
+        },
+        "required": [
+          "id",
+          "book_id",
+          "chapter_number",
+          "title",
+          "category",
+          "total_verses",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "CreateChapterRequest": {
+        "type": "object",
+        "properties": {
+          "book_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "chapter_number": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 1
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "example": "Al-Fatihah"
+          },
+          "category": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "example": "Makki"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000,
+            "example": "The Opening Chapter"
+          },
+          "total_verses": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 7
+          }
+        },
+        "required": [
+          "book_id",
+          "chapter_number",
+          "title",
+          "category",
+          "total_verses"
+        ]
+      },
+      "UpdateChapterRequest": {
+        "type": "object",
+        "properties": {
+          "book_id": {
+            "type": "integer",
+            "nullable": true,
+            "example": 1
+          },
+          "chapter_number": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": 1,
+            "example": 1
+          },
+          "title": {
+            "type": "string",
+            "nullable": true,
+            "minLength": 1,
+            "maxLength": 255,
+            "example": "Al-Fatihah (Updated)"
+          },
+          "category": {
+            "type": "string",
+            "nullable": true,
+            "minLength": 1,
+            "maxLength": 100,
+            "example": "Makki"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 2000,
+            "example": "The Opening Chapter (Updated)"
+          },
+          "total_verses": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": 1,
+            "example": 7
+          }
+        }
+      },
+      "ChapterListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChapterResponse"
             }
           },
           "meta": {

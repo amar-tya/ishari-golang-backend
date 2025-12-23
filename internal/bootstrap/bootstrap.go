@@ -10,6 +10,7 @@ import (
 	"ishari-backend/internal/core/usecase"
 	authusecase "ishari-backend/internal/core/usecase/auth"
 	bookusecase "ishari-backend/internal/core/usecase/book"
+	chapterusecase "ishari-backend/internal/core/usecase/chapter"
 	userusecase "ishari-backend/internal/core/usecase/user"
 	"ishari-backend/pkg/config"
 	"ishari-backend/pkg/database"
@@ -45,6 +46,7 @@ func Build(cfg config.Config) (*App, error) {
 
 	// Repositories
 	bookRepo := postgres.NewBookRepository(db)
+	chapterRepo := postgres.NewChapterRepository(db)
 	healthRepo := postgres.NewHealthRepository(db)
 	userRepo := postgres.NewUserRepository(db)
 	refreshTokenRepo := postgres.NewRefreshTokenRepository(db)
@@ -55,6 +57,7 @@ func Build(cfg config.Config) (*App, error) {
 	// Use cases
 	healthUC := usecase.NewHealthUseCase(healthRepo)
 	bookUC := bookusecase.NewBookUseCase(bookRepo)
+	chapterUC := chapterusecase.NewChapterUsecase(chapterRepo, bookRepo, l)
 	userUC := userusecase.NewUserUseCase(userRepo, passwordHasher)
 	authUC := authusecase.NewAuthUseCase(userRepo, jwtService, tokenBlacklist, passwordHasher)
 
@@ -66,14 +69,16 @@ func Build(cfg config.Config) (*App, error) {
 	v := validation.New()
 	healthCtrl := controller.NewHealthController(healthUC)
 	bookCtrl := controller.NewBookController(bookUC, v, l)
+	chapterCtrl := controller.NewChapterController(chapterUC, v, l)
 	userCtrl := controller.NewUserController(userUC, v, l)
 	authCtrl := controller.NewAuthController(authUC, v, l)
 
 	http.RegisterRoutes(server.App, http.Controllers{
-		Health: healthCtrl,
-		Book:   bookCtrl,
-		User:   userCtrl,
-		Auth:   authCtrl,
+		Health:  healthCtrl,
+		Book:    bookCtrl,
+		Chapter: chapterCtrl,
+		User:    userCtrl,
+		Auth:    authCtrl,
 	}, &http.AuthDeps{
 		AuthUC: authUC,
 	})
