@@ -1313,6 +1313,324 @@
           }
         }
       }
+    },
+    "/verses": {
+      "get": {
+        "summary": "List verses",
+        "operationId": "listVerses",
+        "tags": [
+          "Verses"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (1-indexed). Defaults to 1.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of items per page. Defaults to 20.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 20
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Case-insensitive search term applied to arabic text or transliteration.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paged list of verses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerseListResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error when fetching verses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a verse",
+        "operationId": "createVerse",
+        "tags": [
+          "Verses"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateVerseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Verse created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "verse created successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/VerseResponse"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error or chapter not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error when creating verse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/verses/{id}": {
+      "get": {
+        "summary": "Get verse by ID",
+        "operationId": "getVerseById",
+        "tags": [
+          "Verses"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Verse details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/VerseResponse"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Verse not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update verse",
+        "operationId": "updateVerse",
+        "tags": [
+          "Verses"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateVerseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Verse updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/VerseResponse"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Verse or chapter not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete verse",
+        "operationId": "deleteVerse",
+        "tags": [
+          "Verses"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Verse deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "string",
+                      "example": "verse deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Verse not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1822,6 +2140,126 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/ChapterResponse"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ListMeta"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "VerseResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "chapter_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "verse_number": {
+            "type": "integer",
+            "example": 1
+          },
+          "arabic_text": {
+            "type": "string",
+            "example": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
+          },
+          "transliteration": {
+            "type": "string",
+            "nullable": true,
+            "example": "Bismillahir Rahmanir Rahim"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-12-01T10:00:00Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-12-01T10:00:00Z"
+          }
+        },
+        "required": [
+          "id",
+          "chapter_id",
+          "verse_number",
+          "arabic_text",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "CreateVerseRequest": {
+        "type": "object",
+        "properties": {
+          "chapter_id": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 1
+          },
+          "verse_number": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 1
+          },
+          "arabic_text": {
+            "type": "string",
+            "minLength": 1,
+            "example": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
+          },
+          "transliteration": {
+            "type": "string",
+            "nullable": true,
+            "example": "Bismillahir Rahmanir Rahim"
+          }
+        },
+        "required": [
+          "chapter_id",
+          "verse_number",
+          "arabic_text"
+        ]
+      },
+      "UpdateVerseRequest": {
+        "type": "object",
+        "properties": {
+          "chapter_id": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": 1,
+            "example": 1
+          },
+          "verse_number": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": 1,
+            "example": 2
+          },
+          "arabic_text": {
+            "type": "string",
+            "nullable": true,
+            "minLength": 1,
+            "example": "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ"
+          },
+          "transliteration": {
+            "type": "string",
+            "nullable": true,
+            "example": "Alhamdulillahi Rabbil Aalameen"
+          }
+        }
+      },
+      "VerseListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VerseResponse"
             }
           },
           "meta": {
