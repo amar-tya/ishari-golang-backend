@@ -14,6 +14,7 @@ type Controllers struct {
 	Chapter *controller.ChapterController
 	User    *controller.UserController
 	Auth    *controller.AuthController
+	Verse   *controller.VerseController
 }
 
 // AuthDeps holds auth-related dependencies for route registration
@@ -43,6 +44,9 @@ func RegisterRoutes(app *fiber.App, ctrls Controllers, authDeps *AuthDeps) {
 		}
 		if ctrls.Auth != nil {
 			RegisterAuthRoutes(api, ctrls.Auth, authDeps.AuthUC)
+		}
+		if ctrls.Verse != nil {
+			RegisterVerseRoutes(api, ctrls.Verse, authDeps.AuthUC)
 		}
 	}
 }
