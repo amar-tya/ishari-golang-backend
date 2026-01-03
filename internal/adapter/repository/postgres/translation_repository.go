@@ -47,3 +47,31 @@ func (r *TranslationRepository) List(ctx context.Context, offset, limit uint, se
 
 	return translations, uint(total), nil
 }
+
+// GetByVerseId implements TranslationRepository.
+func (r *TranslationRepository) GetByVerseId(ctx context.Context, verseId uint) ([]entity.Translation, error) {
+	var translations []entity.Translation
+	if err := r.db.WithContext(ctx).Where("verse_id = ?", verseId).Find(&translations).Error; err != nil {
+		return nil, err
+	}
+	return translations, nil
+}
+
+// GetById implements TranslationRepository.
+func (r *TranslationRepository) GetById(ctx context.Context, id uint) (*entity.Translation, error) {
+	var translation entity.Translation
+	if err := r.db.WithContext(ctx).Where("id = ?", id).First(&translation).Error; err != nil {
+		return nil, err
+	}
+	return &translation, nil
+}
+
+// Update implements TranslationRepository.
+func (r *TranslationRepository) Update(ctx context.Context, translation *entity.Translation) error {
+	return r.db.WithContext(ctx).Save(translation).Error
+}
+
+// Delete implements TranslationRepository.
+func (r *TranslationRepository) Delete(ctx context.Context, id uint) error {
+	return r.db.WithContext(ctx).Delete(&entity.Translation{}, id).Error
+}
