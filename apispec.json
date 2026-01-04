@@ -1631,6 +1631,397 @@
           }
         }
       }
+    },
+    "/translations": {
+      "get": {
+        "summary": "List translations",
+        "operationId": "listTranslations",
+        "tags": [
+          "Translations"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (1-indexed). Defaults to 1.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of items per page. Defaults to 20.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 20
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Case-insensitive search term applied to translation text.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paged list of translations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TranslationListResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error when fetching translations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a translation",
+        "operationId": "createTranslation",
+        "tags": [
+          "Translations"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTranslationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Translation created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "translation created successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/TranslationResponse"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error or verse not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error when creating translation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/translations/{id}": {
+      "get": {
+        "summary": "Get translation by ID",
+        "operationId": "getTranslationById",
+        "tags": [
+          "Translations"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Translation details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/TranslationResponse"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Translation not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update translation",
+        "operationId": "updateTranslation",
+        "tags": [
+          "Translations"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTranslationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Translation updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/TranslationResponse"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Translation or verse not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete translation",
+        "operationId": "deleteTranslation",
+        "tags": [
+          "Translations"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Translation deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "string",
+                      "example": "translation deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Translation not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/translations/verse/{verse_id}": {
+      "get": {
+        "summary": "Get translations by verse ID",
+        "operationId": "getTranslationsByVerseId",
+        "tags": [
+          "Translations"
+        ],
+        "parameters": [
+          {
+            "name": "verse_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of translations for the specified verse",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/TranslationResponse"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid verse ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Verse not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2260,6 +2651,131 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/VerseResponse"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ListMeta"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ]
+      },
+      "TranslationResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "verse_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "language_code": {
+            "type": "string",
+            "example": "en"
+          },
+          "translation_text": {
+            "type": "string",
+            "example": "In the name of God, the Most Gracious, the Most Merciful"
+          },
+          "translator_name": {
+            "type": "string",
+            "nullable": true,
+            "example": "Sahih International"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-12-01T10:00:00Z"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-12-01T10:00:00Z"
+          }
+        },
+        "required": [
+          "id",
+          "verse_id",
+          "language_code",
+          "translation_text",
+          "created_at",
+          "updated_at"
+        ]
+      },
+      "CreateTranslationRequest": {
+        "type": "object",
+        "properties": {
+          "verse_id": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 1
+          },
+          "language_code": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 10,
+            "example": "en"
+          },
+          "translation_text": {
+            "type": "string",
+            "minLength": 1,
+            "example": "In the name of God, the Most Gracious, the Most Merciful"
+          },
+          "translator_name": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255,
+            "example": "Sahih International"
+          }
+        },
+        "required": [
+          "verse_id",
+          "language_code",
+          "translation_text",
+          "translator_name"
+        ]
+      },
+      "UpdateTranslationRequest": {
+        "type": "object",
+        "properties": {
+          "verse_id": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": 1,
+            "example": 1
+          },
+          "language_code": {
+            "type": "string",
+            "nullable": true,
+            "minLength": 2,
+            "maxLength": 10,
+            "example": "id"
+          },
+          "translation_text": {
+            "type": "string",
+            "nullable": true,
+            "minLength": 1,
+            "example": "Dengan menyebut nama Allah Yang Maha Pemurah lagi Maha Penyayang"
+          },
+          "translator_name": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255,
+            "example": "Kementerian Agama RI"
+          }
+        }
+      },
+      "TranslationListResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TranslationResponse"
             }
           },
           "meta": {
