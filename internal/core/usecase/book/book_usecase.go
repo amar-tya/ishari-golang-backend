@@ -54,6 +54,7 @@ func (uc *bookUseCase) EditBook(ctx context.Context, id int64, in portusecase.Cr
 	}
 
 	book := &entity.Book{
+		ID:            int(id),
 		Title:         in.Title,
 		Author:        in.Author,
 		Description:   in.Description,
