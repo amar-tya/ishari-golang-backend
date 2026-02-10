@@ -84,3 +84,10 @@ migrate-version:
 
 migrate-create:
 	$(MIGRATE_BIN) create -ext sql -dir "$(MIGRATIONS_DIR)" -seq $(NAME)
+
+migrate-drop:
+	$(MIGRATE_BIN) -path "$(MIGRATIONS_DIR)" -database "$(MIGRATE_DB_URL)" drop -f
+
+migrate-reset:
+	$(MIGRATE_BIN) -path "$(MIGRATIONS_DIR)" -database "$(MIGRATE_DB_URL)" drop -f
+	$(MIGRATE_BIN) -path "$(MIGRATIONS_DIR)" -database "$(MIGRATE_DB_URL)" up

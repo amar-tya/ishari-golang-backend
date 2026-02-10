@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS public.chapters (
     deleted_at timestamp without time zone,
     CONSTRAINT chapters_pkey PRIMARY KEY (id),
     CONSTRAINT unique_chapter_number UNIQUE (book_id, chapter_number),
-    CONSTRAINT chapters_category_check CHECK (((category)::text = ANY ((ARRAY['Diwan'::character varying, 'Syaraful Anam'::character varying])::text[])))
+    CONSTRAINT chapters_category_check CHECK (((category)::text = ANY ((ARRAY['Diwan'::character varying, 'Syaraful Anam'::character varying, 'Muhud'::character varying, 'Rowi'::character varying, 'Diba'::character varying, 'Muradah'::character varying])::text[])))
 );
 
 ALTER SEQUENCE public.chapters_id_seq OWNED BY public.chapters.id;
