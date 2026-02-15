@@ -21,4 +21,5 @@ func RegisterChapterRoutes(router fiber.Router, ctrl *controller.ChapterControll
 	protected.Post("/", ctrl.Create)
 	protected.Put("/:id", ctrl.Update)
 	protected.Delete("/:id", ctrl.Delete)
+	protected.Post("/bulk-delete", ctrl.BulkDelete)
 }

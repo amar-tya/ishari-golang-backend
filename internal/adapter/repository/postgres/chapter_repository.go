@@ -87,3 +87,8 @@ func (r *chapterRepository) UpdateChapter(ctx context.Context, chapter *entity.C
 func (r *chapterRepository) DeleteChapter(ctx context.Context, id uint) error {
 	return r.db.WithContext(ctx).Delete(&entity.Chapter{}, id).Error
 }
+
+// DeleteChapters removes multiple chapters by IDs
+func (r *chapterRepository) DeleteChapters(ctx context.Context, ids []uint) error {
+	return r.db.WithContext(ctx).Delete(&entity.Chapter{}, ids).Error
+}

@@ -32,3 +32,8 @@ type UpdateChapterRequest struct {
 	Description   *string `json:"description"`
 	TotalVerses   *uint   `json:"total_verses"`
 }
+
+// BulkDeleteChapterRequest represents the HTTP request for bulk deleting chapters
+type BulkDeleteChapterRequest struct {
+	IDs []uint `json:"ids" validate:"required,min=1"`
+}

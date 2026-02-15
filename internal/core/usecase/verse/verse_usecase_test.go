@@ -63,6 +63,7 @@ type MockChapterRepository struct {
 	GetChapterByIDFunc      func(ctx context.Context, id uint) (*entity.Chapter, error)
 	UpdateChapterFunc       func(ctx context.Context, chapter *entity.Chapter) error
 	DeleteChapterFunc       func(ctx context.Context, id uint) error
+	DeleteChaptersFunc      func(ctx context.Context, ids []uint) error
 }
 
 func (m *MockChapterRepository) CreateChapter(ctx context.Context, chapter *entity.Chapter) error {
@@ -103,6 +104,13 @@ func (m *MockChapterRepository) UpdateChapter(ctx context.Context, chapter *enti
 func (m *MockChapterRepository) DeleteChapter(ctx context.Context, id uint) error {
 	if m.DeleteChapterFunc != nil {
 		return m.DeleteChapterFunc(ctx, id)
+	}
+	return nil
+}
+
+func (m *MockChapterRepository) DeleteChapters(ctx context.Context, ids []uint) error {
+	if m.DeleteChaptersFunc != nil {
+		return m.DeleteChaptersFunc(ctx, ids)
 	}
 	return nil
 }

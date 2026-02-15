@@ -241,3 +241,17 @@ func (u *chapterUsecase) Delete(ctx context.Context, id uint) error {
 	}
 	return nil
 }
+
+// BulkDelete removes multiple chapters by IDs
+func (u *chapterUsecase) BulkDelete(ctx context.Context, ids []uint) error {
+	if len(ids) == 0 {
+		return nil
+	}
+
+	if err := u.chapterRepo.DeleteChapters(ctx, ids); err != nil {
+		u.log.Error("failed to bulk delete chapters", "error", err, "chapter_ids", ids)
+		return domain.NewInternalError("failed to bulk delete chapters", err)
+	}
+
+	return nil
+}

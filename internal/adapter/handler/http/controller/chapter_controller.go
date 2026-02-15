@@ -170,6 +170,25 @@ func (c *ChapterController) Delete(ctx *fiber.Ctx) error {
 	return response.SendOK(ctx, fiber.Map{"message": "chapter deleted successfully"})
 }
 
+// BulkDelete handles bulk deleting chapters
+// POST /api/v1/chapters/bulk-delete
+func (c *ChapterController) BulkDelete(ctx *fiber.Ctx) error {
+	var req dto.BulkDeleteChapterRequest
+	if err := ctx.BodyParser(&req); err != nil {
+		return response.SendParseError(ctx, err, c.log, "Bulk delete chapter body parse error")
+	}
+
+	if err := c.validate.Struct(req); err != nil {
+		return response.SendValidationError(ctx, err, c.log, "Bulk delete chapter validation failed")
+	}
+
+	if err := c.chapterUsecase.BulkDelete(ctx.UserContext(), req.IDs); err != nil {
+		return response.SendDomainError(ctx, err, c.log)
+	}
+
+	return response.SendOK(ctx, fiber.Map{"message": "chapters deleted successfully"})
+}
+
 // GetByBookID handles getting chapters by book ID
 // GET /api/v1/chapters/book/:bookId
 func (c *ChapterController) GetByBookID(ctx *fiber.Ctx) error {

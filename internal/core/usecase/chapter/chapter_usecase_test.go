@@ -19,6 +19,7 @@ type MockChapterRepository struct {
 	GetChapterByIDFunc      func(ctx context.Context, id uint) (*entity.Chapter, error)
 	UpdateChapterFunc       func(ctx context.Context, ch *entity.Chapter) error
 	DeleteChapterFunc       func(ctx context.Context, id uint) error
+	DeleteChaptersFunc      func(ctx context.Context, ids []uint) error
 }
 
 func (m *MockChapterRepository) CreateChapter(ctx context.Context, ch *entity.Chapter) error {
@@ -59,6 +60,13 @@ func (m *MockChapterRepository) UpdateChapter(ctx context.Context, ch *entity.Ch
 func (m *MockChapterRepository) DeleteChapter(ctx context.Context, id uint) error {
 	if m.DeleteChapterFunc != nil {
 		return m.DeleteChapterFunc(ctx, id)
+	}
+	return nil
+}
+
+func (m *MockChapterRepository) DeleteChapters(ctx context.Context, ids []uint) error {
+	if m.DeleteChaptersFunc != nil {
+		return m.DeleteChaptersFunc(ctx, ids)
 	}
 	return nil
 }
@@ -646,6 +654,64 @@ func TestChapterUsecase_Delete_RepositoryError(t *testing.T) {
 	uc := chapter.NewChapterUsecase(mockChapterRepo, mockBookRepo, mockLogger)
 
 	err := uc.Delete(context.Background(), 1)
+
+	if err == nil {
+		t.Error("expected error from repository, got nil")
+	}
+}
+
+func TestChapterUsecase_BulkDelete_Success(t *testing.T) {
+	mockChapterRepo := &MockChapterRepository{
+		DeleteChaptersFunc: func(ctx context.Context, ids []uint) error {
+			if len(ids) != 2 {
+				t.Errorf("expected 2 ids, got %d", len(ids))
+			}
+			return nil
+		},
+	}
+	mockBookRepo := &MockBookRepository{}
+	mockLogger := &MockLogger{}
+
+	uc := chapter.NewChapterUsecase(mockChapterRepo, mockBookRepo, mockLogger)
+
+	err := uc.BulkDelete(context.Background(), []uint{1, 2})
+
+	if err != nil {
+		t.Errorf("expected no error, got %v", err)
+	}
+}
+
+func TestChapterUsecase_BulkDelete_EmptyIDs(t *testing.T) {
+	mockChapterRepo := &MockChapterRepository{
+		DeleteChaptersFunc: func(ctx context.Context, ids []uint) error {
+			t.Error("DeleteChapters should not be called")
+			return nil
+		},
+	}
+	mockBookRepo := &MockBookRepository{}
+	mockLogger := &MockLogger{}
+
+	uc := chapter.NewChapterUsecase(mockChapterRepo, mockBookRepo, mockLogger)
+
+	err := uc.BulkDelete(context.Background(), []uint{})
+
+	if err != nil {
+		t.Errorf("expected no error, got %v", err)
+	}
+}
+
+func TestChapterUsecase_BulkDelete_RepositoryError(t *testing.T) {
+	mockChapterRepo := &MockChapterRepository{
+		DeleteChaptersFunc: func(ctx context.Context, ids []uint) error {
+			return errors.New("database error")
+		},
+	}
+	mockBookRepo := &MockBookRepository{}
+	mockLogger := &MockLogger{}
+
+	uc := chapter.NewChapterUsecase(mockChapterRepo, mockBookRepo, mockLogger)
+
+	err := uc.BulkDelete(context.Background(), []uint{1, 2})
 
 	if err == nil {
 		t.Error("expected error from repository, got nil")

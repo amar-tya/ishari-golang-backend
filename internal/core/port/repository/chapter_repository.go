@@ -13,4 +13,5 @@ type ChapterRepository interface {
 	GetChapterByID(ctx context.Context, id uint) (*entity.Chapter, error)
 	UpdateChapter(ctx context.Context, chapter *entity.Chapter) error
 	DeleteChapter(ctx context.Context, id uint) error
+	DeleteChapters(ctx context.Context, ids []uint) error
 }
