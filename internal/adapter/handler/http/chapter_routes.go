@@ -18,8 +18,8 @@ func RegisterChapterRoutes(router fiber.Router, ctrl *controller.ChapterControll
 
 	// Protected routes (require JWT token)
 	protected := chapter.Group("", middleware.AuthMiddleware(authUC))
+	protected.Post("/bulk-delete", ctrl.BulkDelete)
 	protected.Post("/", ctrl.Create)
 	protected.Put("/:id", ctrl.Update)
 	protected.Delete("/:id", ctrl.Delete)
-	protected.Post("/bulk-delete", ctrl.BulkDelete)
 }

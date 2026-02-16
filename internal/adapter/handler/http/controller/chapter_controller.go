@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"encoding/json"
 	"ishari-backend/internal/adapter/handler/http/dto"
 	"ishari-backend/internal/adapter/handler/http/response"
 	"ishari-backend/internal/core/entity"
@@ -174,8 +175,25 @@ func (c *ChapterController) Delete(ctx *fiber.Ctx) error {
 // POST /api/v1/chapters/bulk-delete
 func (c *ChapterController) BulkDelete(ctx *fiber.Ctx) error {
 	var req dto.BulkDeleteChapterRequest
+
+	// Try to parse body first
 	if err := ctx.BodyParser(&req); err != nil {
-		return response.SendParseError(ctx, err, c.log, "Bulk delete chapter body parse error")
+		c.log.Error("BodyParser failed", err)
+	}
+
+	// If IDs are still empty but body exists, try manual unmarshal
+	// This handles cases where BodyParser returns nil but didn't parse (e.g. missing Content-Type)
+	if len(req.IDs) == 0 && len(ctx.Body()) > 0 {
+		if jsonErr := json.Unmarshal(ctx.Body(), &req); jsonErr != nil {
+			c.log.Error("Manual JSON unmarshal failed", jsonErr)
+		}
+	}
+
+	// If no IDs found in body, try query params
+	if len(req.IDs) == 0 {
+		if err := ctx.QueryParser(&req); err != nil {
+			return response.SendParseError(ctx, err, c.log, "Bulk delete chapter query parse error")
+		}
 	}
 
 	if err := c.validate.Struct(req); err != nil {

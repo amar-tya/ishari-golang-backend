@@ -35,5 +35,5 @@ type UpdateChapterRequest struct {
 
 // BulkDeleteChapterRequest represents the HTTP request for bulk deleting chapters
 type BulkDeleteChapterRequest struct {
-	IDs []uint `json:"ids" validate:"required,min=1"`
+	IDs []uint `json:"ids" query:"ids" form:"ids" validate:"required,min=1"`
 }

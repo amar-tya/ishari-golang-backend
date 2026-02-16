@@ -90,5 +90,5 @@ func (r *chapterRepository) DeleteChapter(ctx context.Context, id uint) error {
 
 // DeleteChapters removes multiple chapters by IDs
 func (r *chapterRepository) DeleteChapters(ctx context.Context, ids []uint) error {
-	return r.db.WithContext(ctx).Delete(&entity.Chapter{}, ids).Error
+	return r.db.WithContext(ctx).Delete(&entity.Chapter{}, "id IN ?", ids).Error
 }
