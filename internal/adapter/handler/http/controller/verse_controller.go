@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"encoding/json"
 	"ishari-backend/internal/adapter/handler/http/dto"
 	"ishari-backend/internal/adapter/handler/http/response"
 	"ishari-backend/internal/core/entity"
@@ -160,4 +161,40 @@ func (c *VerseController) Delete(ctx *fiber.Ctx) error {
 	}
 
 	return response.SendOK(ctx, "verse deleted successfully")
+}
+
+// BulkDelete handles bulk deleting verses
+// POST /api/verses/bulk-delete
+func (c *VerseController) BulkDelete(ctx *fiber.Ctx) error {
+	var req dto.BulkDeleteVerseRequest
+
+	// Try to parse body first
+	if err := ctx.BodyParser(&req); err != nil {
+		c.log.Error("BodyParser failed", err)
+	}
+
+	// If IDs are still empty but body exists, try manual unmarshal
+	// This handles cases where BodyParser returns nil but didn't parse (e.g. missing Content-Type)
+	if len(req.IDs) == 0 && len(ctx.Body()) > 0 {
+		if jsonErr := json.Unmarshal(ctx.Body(), &req); jsonErr != nil {
+			c.log.Error("Manual JSON unmarshal failed", jsonErr)
+		}
+	}
+
+	// If no IDs found in body, try query params
+	if len(req.IDs) == 0 {
+		if err := ctx.QueryParser(&req); err != nil {
+			return response.SendParseError(ctx, err, c.log, "Bulk delete verse query parse error")
+		}
+	}
+
+	if err := c.validate.Struct(req); err != nil {
+		return response.SendValidationError(ctx, err, c.log, "Bulk delete verse validation failed")
+	}
+
+	if err := c.verseUsecase.BulkDelete(ctx.UserContext(), req.IDs); err != nil {
+		return response.SendDomainError(ctx, err, c.log)
+	}
+
+	return response.SendOK(ctx, fiber.Map{"message": "verses deleted successfully"})
 }

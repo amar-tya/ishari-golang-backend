@@ -26,3 +26,8 @@ type UpdateVerseRequest struct {
 	ArabicText      *string `json:"arabic_text"`
 	Transliteration *string `json:"transliteration,omitempty"`
 }
+
+// BulkDeleteVerseRequest represents the HTTP request for bulk deleting verses
+type BulkDeleteVerseRequest struct {
+	IDs []uint `json:"ids" query:"ids" form:"ids" validate:"required,min=1"`
+}

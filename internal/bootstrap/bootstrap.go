@@ -11,7 +11,9 @@ import (
 	authusecase "ishari-backend/internal/core/usecase/auth"
 	bookusecase "ishari-backend/internal/core/usecase/book"
 	chapterusecase "ishari-backend/internal/core/usecase/chapter"
+	translationusecase "ishari-backend/internal/core/usecase/translation"
 	userusecase "ishari-backend/internal/core/usecase/user"
+	verseusecase "ishari-backend/internal/core/usecase/verse"
 	"ishari-backend/pkg/config"
 	"ishari-backend/pkg/database"
 	"ishari-backend/pkg/hasher"
@@ -49,6 +51,8 @@ func Build(cfg config.Config) (*App, error) {
 	chapterRepo := postgres.NewChapterRepository(db)
 	healthRepo := postgres.NewHealthRepository(db)
 	userRepo := postgres.NewUserRepository(db)
+	verseRepo := postgres.NewVerseRepository(db)
+	translationRepo := postgres.NewTranslationRepository(db)
 	refreshTokenRepo := postgres.NewRefreshTokenRepository(db)
 
 	// Token blacklist (database-backed)
@@ -59,6 +63,8 @@ func Build(cfg config.Config) (*App, error) {
 	bookUC := bookusecase.NewBookUseCase(bookRepo)
 	chapterUC := chapterusecase.NewChapterUsecase(chapterRepo, bookRepo, l)
 	userUC := userusecase.NewUserUseCase(userRepo, passwordHasher)
+	verseUC := verseusecase.NewVerseUsecase(verseRepo, chapterRepo, l)
+	translationUC := translationusecase.NewTranslationUsecase(translationRepo, verseRepo, l)
 	authUC := authusecase.NewAuthUseCase(userRepo, jwtService, tokenBlacklist, passwordHasher)
 
 	// HTTP server
@@ -72,13 +78,17 @@ func Build(cfg config.Config) (*App, error) {
 	chapterCtrl := controller.NewChapterController(chapterUC, v, l)
 	userCtrl := controller.NewUserController(userUC, v, l)
 	authCtrl := controller.NewAuthController(authUC, v, l)
+	verseCtrl := controller.NewVerseController(verseUC, v, l)
+	translationCtrl := controller.NewTranslationController(translationUC, v, l)
 
 	http.RegisterRoutes(server.App, http.Controllers{
-		Health:  healthCtrl,
-		Book:    bookCtrl,
-		Chapter: chapterCtrl,
-		User:    userCtrl,
-		Auth:    authCtrl,
+		Health:      healthCtrl,
+		Book:        bookCtrl,
+		Chapter:     chapterCtrl,
+		User:        userCtrl,
+		Auth:        authCtrl,
+		Verse:       verseCtrl,
+		Translation: translationCtrl,
 	}, &http.AuthDeps{
 		AuthUC: authUC,
 	})

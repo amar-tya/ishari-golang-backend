@@ -190,3 +190,17 @@ func (u *verseUsecase) Delete(ctx context.Context, id uint) error {
 	}
 	return nil
 }
+
+// BulkDelete removes multiple verses by IDs
+func (u *verseUsecase) BulkDelete(ctx context.Context, ids []uint) error {
+	if len(ids) == 0 {
+		return nil
+	}
+
+	if err := u.verseRepo.BulkDelete(ctx, ids); err != nil {
+		u.log.Error("failed to bulk delete verses", "error", err, "verse_ids", ids)
+		return domain.NewInternalError("failed to bulk delete verses", err)
+	}
+
+	return nil
+}

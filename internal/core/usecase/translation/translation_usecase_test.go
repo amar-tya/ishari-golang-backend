@@ -65,11 +65,12 @@ func (m *MockTranslationRepository) GetByVerseId(ctx context.Context, verseId ui
 
 // MockVerseRepository is a manual mock for testing
 type MockVerseRepository struct {
-	CreateFunc  func(ctx context.Context, verse *entity.Verse) error
-	ListFunc    func(ctx context.Context, offset, limit uint, search string) ([]entity.Verse, uint, error)
-	UpdateFunc  func(ctx context.Context, verse *entity.Verse) error
-	DeleteFunc  func(ctx context.Context, id uint) error
-	GetByIdFunc func(ctx context.Context, id uint) (*entity.Verse, error)
+	CreateFunc     func(ctx context.Context, verse *entity.Verse) error
+	ListFunc       func(ctx context.Context, offset, limit uint, search string) ([]entity.Verse, uint, error)
+	UpdateFunc     func(ctx context.Context, verse *entity.Verse) error
+	DeleteFunc     func(ctx context.Context, id uint) error
+	BulkDeleteFunc func(ctx context.Context, ids []uint) error
+	GetByIdFunc    func(ctx context.Context, id uint) (*entity.Verse, error)
 }
 
 func (m *MockVerseRepository) Create(ctx context.Context, v *entity.Verse) error {
@@ -96,6 +97,13 @@ func (m *MockVerseRepository) Update(ctx context.Context, v *entity.Verse) error
 func (m *MockVerseRepository) Delete(ctx context.Context, id uint) error {
 	if m.DeleteFunc != nil {
 		return m.DeleteFunc(ctx, id)
+	}
+	return nil
+}
+
+func (m *MockVerseRepository) BulkDelete(ctx context.Context, ids []uint) error {
+	if m.BulkDeleteFunc != nil {
+		return m.BulkDeleteFunc(ctx, ids)
 	}
 	return nil
 }

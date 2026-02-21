@@ -10,6 +10,7 @@ type VerseUseCase interface {
 	List(ctx context.Context, params ListParams) (*PaginatedResult[entity.Verse], error)
 	Update(ctx context.Context, id uint, input UpdateVerseInput) (*entity.Verse, error)
 	Delete(ctx context.Context, id uint) error
+	BulkDelete(ctx context.Context, ids []uint) error
 	GetById(ctx context.Context, id uint) (*entity.Verse, error)
 }
 

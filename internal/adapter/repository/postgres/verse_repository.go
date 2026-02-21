@@ -66,3 +66,8 @@ func (r *VerseRepository) Update(ctx context.Context, verse *entity.Verse) error
 func (r *VerseRepository) Delete(ctx context.Context, id uint) error {
 	return r.db.WithContext(ctx).Delete(&entity.Verse{}, id).Error
 }
+
+// BulkDelete removes multiple verses by IDs
+func (r *VerseRepository) BulkDelete(ctx context.Context, ids []uint) error {
+	return r.db.WithContext(ctx).Delete(&entity.Verse{}, "id IN ?", ids).Error
+}

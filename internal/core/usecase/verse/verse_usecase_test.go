@@ -13,11 +13,12 @@ import (
 
 // MockVerseRepository is a manual mock for testing
 type MockVerseRepository struct {
-	CreateFunc  func(ctx context.Context, verse *entity.Verse) error
-	ListFunc    func(ctx context.Context, offset, limit uint, search string) ([]entity.Verse, uint, error)
-	UpdateFunc  func(ctx context.Context, verse *entity.Verse) error
-	DeleteFunc  func(ctx context.Context, id uint) error
-	GetByIdFunc func(ctx context.Context, id uint) (*entity.Verse, error)
+	CreateFunc     func(ctx context.Context, verse *entity.Verse) error
+	ListFunc       func(ctx context.Context, offset, limit uint, search string) ([]entity.Verse, uint, error)
+	UpdateFunc     func(ctx context.Context, verse *entity.Verse) error
+	DeleteFunc     func(ctx context.Context, id uint) error
+	BulkDeleteFunc func(ctx context.Context, ids []uint) error
+	GetByIdFunc    func(ctx context.Context, id uint) (*entity.Verse, error)
 }
 
 func (m *MockVerseRepository) Create(ctx context.Context, v *entity.Verse) error {
@@ -44,6 +45,13 @@ func (m *MockVerseRepository) Update(ctx context.Context, v *entity.Verse) error
 func (m *MockVerseRepository) Delete(ctx context.Context, id uint) error {
 	if m.DeleteFunc != nil {
 		return m.DeleteFunc(ctx, id)
+	}
+	return nil
+}
+
+func (m *MockVerseRepository) BulkDelete(ctx context.Context, ids []uint) error {
+	if m.BulkDeleteFunc != nil {
+		return m.BulkDeleteFunc(ctx, ids)
 	}
 	return nil
 }
@@ -869,6 +877,68 @@ func TestVerseUseCase_Delete_RepositoryError(t *testing.T) {
 	uc := verse.NewVerseUsecase(mockVerseRepo, mockChapterRepo, mockLogger)
 
 	err := uc.Delete(context.Background(), 1)
+
+	if err == nil {
+		t.Error("expected error, got nil")
+	}
+}
+
+// =============================================================================
+// TEST: BulkDelete Verses
+// =============================================================================
+
+func TestVerseUseCase_BulkDelete_Success(t *testing.T) {
+	mockVerseRepo := &MockVerseRepository{
+		BulkDeleteFunc: func(ctx context.Context, ids []uint) error {
+			return nil
+		},
+	}
+
+	mockChapterRepo := &MockChapterRepository{}
+	mockLogger := &MockLogger{}
+
+	uc := verse.NewVerseUsecase(mockVerseRepo, mockChapterRepo, mockLogger)
+
+	err := uc.BulkDelete(context.Background(), []uint{1, 2, 3})
+
+	if err != nil {
+		t.Errorf("expected no error, got %v", err)
+	}
+}
+
+func TestVerseUseCase_BulkDelete_EmptyIDs(t *testing.T) {
+	mockVerseRepo := &MockVerseRepository{
+		BulkDeleteFunc: func(ctx context.Context, ids []uint) error {
+			t.Error("BulkDelete should not be called")
+			return nil
+		},
+	}
+
+	mockChapterRepo := &MockChapterRepository{}
+	mockLogger := &MockLogger{}
+
+	uc := verse.NewVerseUsecase(mockVerseRepo, mockChapterRepo, mockLogger)
+
+	err := uc.BulkDelete(context.Background(), []uint{})
+
+	if err != nil {
+		t.Errorf("expected no error for empty IDs, got %v", err)
+	}
+}
+
+func TestVerseUseCase_BulkDelete_RepositoryError(t *testing.T) {
+	mockVerseRepo := &MockVerseRepository{
+		BulkDeleteFunc: func(ctx context.Context, ids []uint) error {
+			return errors.New("db error")
+		},
+	}
+
+	mockChapterRepo := &MockChapterRepository{}
+	mockLogger := &MockLogger{}
+
+	uc := verse.NewVerseUsecase(mockVerseRepo, mockChapterRepo, mockLogger)
+
+	err := uc.BulkDelete(context.Background(), []uint{1, 2})
 
 	if err == nil {
 		t.Error("expected error, got nil")
