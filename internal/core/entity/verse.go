@@ -9,6 +9,7 @@ import (
 type Verse struct {
 	ID              uint           `json:"id" gorm:"primaryKey"`
 	ChapterID       uint           `json:"chapter_id" gorm:"not null"`
+	Chapter         *Chapter       `json:"chapter,omitempty" gorm:"foreignKey:ChapterID"`
 	VerseNumber     uint           `json:"verse_number" gorm:"not null"`
 	ArabicText      string         `json:"arabic_text" gorm:"type:text;not null"`
 	Transliteration *string        `json:"transliteration,omitempty" gorm:"type:text"`

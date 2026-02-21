@@ -57,9 +57,25 @@ func (c *VerseController) Create(ctx *fiber.Ctx) error {
 }
 
 func (c *VerseController) toListVerseResponse(verse *entity.Verse) dto.ListVerseResponse {
+	var chapterResp *dto.ListChapterResponse
+	if verse.Chapter != nil {
+		chapterResp = &dto.ListChapterResponse{
+			ID:            verse.Chapter.ID,
+			BookID:        verse.Chapter.BookID,
+			ChapterNumber: verse.Chapter.ChapterNumber,
+			Title:         verse.Chapter.Title,
+			Category:      verse.Chapter.Category,
+			Description:   verse.Chapter.Description,
+			TotalVerses:   verse.Chapter.TotalVerses,
+			CreatedAt:     verse.Chapter.CreatedAt.UTC().Format(time.RFC3339),
+			UpdatedAt:     verse.Chapter.UpdatedAt.UTC().Format(time.RFC3339),
+		}
+	}
+
 	return dto.ListVerseResponse{
 		ID:              verse.ID,
 		ChapterID:       verse.ChapterID,
+		Chapter:         chapterResp,
 		VerseNumber:     verse.VerseNumber,
 		ArabicText:      verse.ArabicText,
 		Transliteration: verse.Transliteration,
