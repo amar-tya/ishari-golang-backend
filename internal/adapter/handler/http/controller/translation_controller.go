@@ -80,8 +80,8 @@ func (c *TranslationController) List(ctx *fiber.Ctx) error {
 	}
 
 	out := make([]dto.ListTranslationResponse, 0, len(result.Data))
-	for _, translation := range result.Data {
-		out = append(out, c.toListTranslationResponse(&translation))
+	for i := range result.Data {
+		out = append(out, c.toListTranslationResponse(&result.Data[i]))
 	}
 
 	return response.SendPaginated(ctx, out, page, limit, result.Total, totalPages, len(result.Data))
@@ -117,8 +117,8 @@ func (c *TranslationController) GetByVerseID(ctx *fiber.Ctx) error {
 	}
 
 	out := make([]dto.ListTranslationResponse, 0, len(translations))
-	for _, translation := range translations {
-		out = append(out, c.toListTranslationResponse(&translation))
+	for i := range translations {
+		out = append(out, c.toListTranslationResponse(&translations[i]))
 	}
 
 	return response.SendOK(ctx, out)

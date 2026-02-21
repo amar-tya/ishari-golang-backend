@@ -43,7 +43,15 @@ func (u *translationUsecase) Create(ctx context.Context, input portuc.CreateTran
 		return nil, err
 	}
 
-	return translation, nil
+	// Reload with preload to get Verse data for the response
+	reloaded, err := u.translationRepository.GetById(ctx, translation.ID)
+	if err != nil {
+		// Log error but return the translation anyway (Verse will be nil)
+		u.log.Error("failed to reload translation after creation", "error", err, "id", translation.ID)
+		return translation, nil
+	}
+
+	return reloaded, nil
 }
 
 func (u *translationUsecase) validateCreateTranslation(ctx context.Context, input portuc.CreateTranslationInput) error {

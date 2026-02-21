@@ -51,7 +51,7 @@ func (r *TranslationRepository) List(ctx context.Context, offset, limit uint, se
 // GetByVerseId implements TranslationRepository.
 func (r *TranslationRepository) GetByVerseId(ctx context.Context, verseId uint) ([]entity.Translation, error) {
 	var translations []entity.Translation
-	if err := r.db.WithContext(ctx).Where("verse_id = ?", verseId).Find(&translations).Error; err != nil {
+	if err := r.db.WithContext(ctx).Preload("Verse").Where("verse_id = ?", verseId).Find(&translations).Error; err != nil {
 		return nil, err
 	}
 	return translations, nil
