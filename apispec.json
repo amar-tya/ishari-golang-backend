@@ -1507,6 +1507,68 @@
         }
       }
     },
+    "/verses/bulk-delete": {
+      "post": {
+        "summary": "Bulk delete verses",
+        "operationId": "bulkDeleteVerses",
+        "tags": [
+          "Verses"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkDeleteVerseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Verses deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "verses deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or IDs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/verses/{id}": {
       "get": {
         "summary": "Get verse by ID",
@@ -2742,6 +2804,26 @@
         "required": [
           "data",
           "meta"
+        ]
+      },
+      "BulkDeleteVerseRequest": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "minItems": 1,
+            "example": [
+              1,
+              2,
+              3
+            ]
+          }
+        },
+        "required": [
+          "ids"
         ]
       },
       "TranslationResponse": {
