@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"encoding/json"
 	"ishari-backend/internal/adapter/handler/http/dto"
 	"ishari-backend/internal/adapter/handler/http/response"
 	"ishari-backend/internal/core/entity"
@@ -171,8 +172,43 @@ func (c *TranslationController) Delete(ctx *fiber.Ctx) error {
 	return response.SendOK(ctx, "translation deleted successfully")
 }
 
+// BulkDelete handles bulk deleting translations
+// POST /api/translations/bulk-delete
+func (c *TranslationController) BulkDelete(ctx *fiber.Ctx) error {
+	var req dto.BulkDeleteTranslationRequest
+
+	// Try to parse body first
+	if err := ctx.BodyParser(&req); err != nil {
+		c.log.Error("BodyParser failed", err)
+	}
+
+	// If IDs are still empty but body exists, try manual unmarshal
+	if len(req.IDs) == 0 && len(ctx.Body()) > 0 {
+		if jsonErr := json.Unmarshal(ctx.Body(), &req); jsonErr != nil {
+			c.log.Error("Manual JSON unmarshal failed", jsonErr)
+		}
+	}
+
+	// If no IDs found in body, try query params
+	if len(req.IDs) == 0 {
+		if err := ctx.QueryParser(&req); err != nil {
+			return response.SendParseError(ctx, err, c.log, "Bulk delete translation query parse error")
+		}
+	}
+
+	if err := c.validate.Struct(req); err != nil {
+		return response.SendValidationError(ctx, err, c.log, "Bulk delete translation validation failed")
+	}
+
+	if err := c.translationUsecase.BulkDelete(ctx.UserContext(), req.IDs); err != nil {
+		return response.SendDomainError(ctx, err, c.log)
+	}
+
+	return response.SendOK(ctx, fiber.Map{"message": "translations deleted successfully"})
+}
+
 func (c *TranslationController) toListTranslationResponse(translation *entity.Translation) dto.ListTranslationResponse {
-	return dto.ListTranslationResponse{
+	out := dto.ListTranslationResponse{
 		ID:              translation.ID,
 		VerseID:         translation.VerseID,
 		LanguageCode:    translation.LanguageCode,
@@ -181,4 +217,35 @@ func (c *TranslationController) toListTranslationResponse(translation *entity.Tr
 		CreatedAt:       translation.CreatedAt.UTC().Format(time.RFC3339),
 		UpdatedAt:       translation.UpdatedAt.UTC().Format(time.RFC3339),
 	}
+	if translation.Verse != nil {
+		out.Verse = &dto.VerseDropdownItem{
+			ID:         translation.Verse.ID,
+			ArabicText: translation.Verse.ArabicText,
+		}
+	}
+	return out
+}
+
+// GetDropdown handles getting dropdown filter data for translations
+// GET /api/translations/dropdown
+func (c *TranslationController) GetDropdown(ctx *fiber.Ctx) error {
+	data, err := c.translationUsecase.GetDropdownData(ctx.UserContext())
+	if err != nil {
+		return response.SendDomainError(ctx, err, c.log)
+	}
+
+	// Build verse dropdown items
+	verseItems := make([]dto.VerseDropdownItem, 0, len(data.Verses))
+	for _, v := range data.Verses {
+		verseItems = append(verseItems, dto.VerseDropdownItem{
+			ID:         v.ID,
+			ArabicText: v.ArabicText,
+		})
+	}
+
+	return response.SendOK(ctx, dto.TranslationDropdownResponse{
+		Verses:          verseItems,
+		TranslatorNames: data.TranslatorNames,
+		LanguageCodes:   data.LanguageCodes,
+	})
 }

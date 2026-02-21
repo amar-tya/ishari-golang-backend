@@ -2074,26 +2074,16 @@
         }
       }
     },
-    "/translations/verse/{verse_id}": {
+    "/translations/dropdown": {
       "get": {
-        "summary": "Get translations by verse ID",
-        "operationId": "getTranslationsByVerseId",
+        "summary": "Get dropdown filter data for translations",
+        "operationId": "getTranslationDropdown",
         "tags": [
           "Translations"
         ],
-        "parameters": [
-          {
-            "name": "verse_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
         "responses": {
           "200": {
-            "description": "List of translations for the specified verse",
+            "description": "Dropdown data for translations",
             "content": {
               "application/json": {
                 "schema": {
@@ -2104,9 +2094,67 @@
                       "example": "success"
                     },
                     "data": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/TranslationResponse"
+                      "$ref": "#/components/schemas/TranslationDropdownResponse"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/translations/bulk-delete": {
+      "post": {
+        "summary": "Bulk delete translations",
+        "operationId": "bulkDeleteTranslations",
+        "tags": [
+          "Translations"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkDeleteTranslationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Translations deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "example": "translations deleted successfully"
+                        }
                       }
                     }
                   }
@@ -2115,17 +2163,7 @@
             }
           },
           "400": {
-            "description": "Invalid verse ID",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Verse not found",
+            "description": "Validation error",
             "content": {
               "application/json": {
                 "schema": {
@@ -2719,6 +2757,9 @@
             "type": "string",
             "format": "date-time",
             "example": "2025-12-01T10:00:00Z"
+          },
+          "chapter": {
+            "$ref": "#/components/schemas/ChapterResponse"
           }
         },
         "required": [
@@ -2859,6 +2900,9 @@
             "type": "string",
             "format": "date-time",
             "example": "2025-12-01T10:00:00Z"
+          },
+          "verse": {
+            "$ref": "#/components/schemas/VerseDropdownItem"
           }
         },
         "required": [
@@ -2869,6 +2913,42 @@
           "created_at",
           "updated_at"
         ]
+      },
+      "VerseDropdownItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "arabic_text": {
+            "type": "string",
+            "example": "بِسْمِ اللَّهِ..."
+          }
+        }
+      },
+      "TranslationDropdownResponse": {
+        "type": "object",
+        "properties": {
+          "verses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VerseDropdownItem"
+            }
+          },
+          "translator_names": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "language_codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
       },
       "CreateTranslationRequest": {
         "type": "object",
@@ -2949,6 +3029,26 @@
         "required": [
           "data",
           "meta"
+        ]
+      },
+      "BulkDeleteTranslationRequest": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "minItems": 1,
+            "example": [
+              1,
+              2,
+              3
+            ]
+          }
+        },
+        "required": [
+          "ids"
         ]
       },
       "UserListResponse": {

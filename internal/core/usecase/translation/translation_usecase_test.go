@@ -13,12 +13,14 @@ import (
 
 // MockTranslationRepository is a manual mock for testing
 type MockTranslationRepository struct {
-	CreateFunc       func(ctx context.Context, translation *entity.Translation) error
-	ListFunc         func(ctx context.Context, offset, limit uint, search string) ([]entity.Translation, uint, error)
-	UpdateFunc       func(ctx context.Context, translation *entity.Translation) error
-	DeleteFunc       func(ctx context.Context, id uint) error
-	GetByIdFunc      func(ctx context.Context, id uint) (*entity.Translation, error)
-	GetByVerseIdFunc func(ctx context.Context, verseId uint) ([]entity.Translation, error)
+	CreateFunc          func(ctx context.Context, translation *entity.Translation) error
+	ListFunc            func(ctx context.Context, offset, limit uint, search string) ([]entity.Translation, uint, error)
+	UpdateFunc          func(ctx context.Context, translation *entity.Translation) error
+	DeleteFunc          func(ctx context.Context, id uint) error
+	GetByIdFunc         func(ctx context.Context, id uint) (*entity.Translation, error)
+	GetByVerseIdFunc    func(ctx context.Context, verseId uint) ([]entity.Translation, error)
+	GetDropdownDataFunc func(ctx context.Context) ([]entity.Verse, []string, []string, error)
+	BulkDeleteFunc      func(ctx context.Context, ids []uint) error
 }
 
 func (m *MockTranslationRepository) Create(ctx context.Context, t *entity.Translation) error {
@@ -61,6 +63,20 @@ func (m *MockTranslationRepository) GetByVerseId(ctx context.Context, verseId ui
 		return m.GetByVerseIdFunc(ctx, verseId)
 	}
 	return nil, nil
+}
+
+func (m *MockTranslationRepository) GetDropdownData(ctx context.Context) ([]entity.Verse, []string, []string, error) {
+	if m.GetDropdownDataFunc != nil {
+		return m.GetDropdownDataFunc(ctx)
+	}
+	return nil, nil, nil, nil
+}
+
+func (m *MockTranslationRepository) BulkDelete(ctx context.Context, ids []uint) error {
+	if m.BulkDeleteFunc != nil {
+		return m.BulkDeleteFunc(ctx, ids)
+	}
+	return nil
 }
 
 // MockVerseRepository is a manual mock for testing

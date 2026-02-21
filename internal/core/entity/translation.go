@@ -9,6 +9,7 @@ import (
 type Translation struct {
 	ID              uint           `json:"id" gorm:"primaryKey"`
 	VerseID         uint           `json:"verse_id" gorm:"not null"`
+	Verse           *Verse         `json:"verse,omitempty" gorm:"foreignKey:VerseID"`
 	LanguageCode    string         `json:"language_code" gorm:"type:varchar(10);not null"`
 	TranslationText string         `json:"translation_text" gorm:"type:text;not null"`
 	TranslatorName  *string        `json:"translator_name,omitempty" gorm:"type:varchar(255)"`

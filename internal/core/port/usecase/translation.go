@@ -12,6 +12,14 @@ type TranslationUseCase interface {
 	Delete(ctx context.Context, id uint) error
 	GetById(ctx context.Context, id uint) (*entity.Translation, error)
 	GetByVerseId(ctx context.Context, verseId uint) ([]entity.Translation, error)
+	GetDropdownData(ctx context.Context) (*TranslationDropdownData, error)
+	BulkDelete(ctx context.Context, ids []uint) error
+}
+
+type TranslationDropdownData struct {
+	Verses          []entity.Verse `json:"verses"`
+	TranslatorNames []string       `json:"translator_names"`
+	LanguageCodes   []string       `json:"language_codes"`
 }
 
 type CreateTranslationInput struct {

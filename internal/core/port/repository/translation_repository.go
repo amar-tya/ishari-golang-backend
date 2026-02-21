@@ -12,4 +12,6 @@ type TranslationRepository interface {
 	Delete(ctx context.Context, id uint) error
 	GetById(ctx context.Context, id uint) (*entity.Translation, error)
 	GetByVerseId(ctx context.Context, verseId uint) ([]entity.Translation, error)
+	GetDropdownData(ctx context.Context) (verses []entity.Verse, translatorNames []string, languageCodes []string, err error)
+	BulkDelete(ctx context.Context, ids []uint) error
 }

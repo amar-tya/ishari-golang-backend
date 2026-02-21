@@ -168,6 +168,24 @@ func (u *translationUsecase) Update(ctx context.Context, id uint, input portuc.U
 	return translation, nil
 }
 
+// GetDropdownData returns dropdown filter data for translations
+func (u *translationUsecase) GetDropdownData(ctx context.Context) (*portuc.TranslationDropdownData, error) {
+	verses, translatorNames, languageCodes, err := u.translationRepository.GetDropdownData(ctx)
+	if err != nil {
+		u.log.Error("failed to get translation dropdown data", "error", err)
+		return nil, domain.NewInternalError("failed to get translation dropdown data", err)
+	}
+	return &portuc.TranslationDropdownData{
+		Verses:          verses,
+		TranslatorNames: translatorNames,
+		LanguageCodes:   languageCodes,
+	}, nil
+}
+
+func (u *translationUsecase) BulkDelete(ctx context.Context, ids []uint) error {
+	return u.translationRepository.BulkDelete(ctx, ids)
+}
+
 // Delete a translation
 func (u *translationUsecase) Delete(ctx context.Context, id uint) error {
 	_, err := u.translationRepository.GetById(ctx, id)
