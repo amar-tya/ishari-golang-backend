@@ -29,7 +29,10 @@ type UpdateVerseInput struct {
 }
 
 type ListParams struct {
-	Page   uint
-	Limit  uint
-	Search string
+	Page            uint
+	Limit           uint
+	Search          string
+	ChapterID       *uint
+	ArabicText      string
+	Transliteration string
 }

@@ -91,10 +91,24 @@ func (c *VerseController) List(ctx *fiber.Ctx) error {
 	limit, _ := strconv.Atoi(ctx.Query("limit", "20"))
 	search := ctx.Query("search", "")
 
+	var chapterID *uint
+	if cidStr := ctx.Query("chapter_id"); cidStr != "" {
+		if cid, err := strconv.Atoi(cidStr); err == nil && cid > 0 {
+			u := uint(cid)
+			chapterID = &u
+		}
+	}
+
+	arabicText := ctx.Query("arabic_text", "")
+	transliteration := ctx.Query("transliteration", "")
+
 	params := portuc.ListParams{
-		Page:   uint(page),
-		Limit:  uint(limit),
-		Search: search,
+		Page:            uint(page),
+		Limit:           uint(limit),
+		Search:          search,
+		ChapterID:       chapterID,
+		ArabicText:      arabicText,
+		Transliteration: transliteration,
 	}
 
 	result, err := c.verseUsecase.List(ctx.UserContext(), params)

@@ -436,6 +436,33 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "chapter_id",
+            "in": "query",
+            "description": "Filter by chapter ID.",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "arabic_text",
+            "in": "query",
+            "description": "Filter by arabic text (partial match).",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "transliteration",
+            "in": "query",
+            "description": "Filter by transliteration (partial match).",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {

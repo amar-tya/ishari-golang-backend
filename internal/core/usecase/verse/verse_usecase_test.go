@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"ishari-backend/internal/core/entity"
+	"ishari-backend/internal/core/port/repository"
 	portuc "ishari-backend/internal/core/port/usecase"
 	"ishari-backend/internal/core/usecase/verse"
 )
@@ -14,7 +15,7 @@ import (
 // MockVerseRepository is a manual mock for testing
 type MockVerseRepository struct {
 	CreateFunc     func(ctx context.Context, verse *entity.Verse) error
-	ListFunc       func(ctx context.Context, offset, limit uint, search string) ([]entity.Verse, uint, error)
+	ListFunc       func(ctx context.Context, filter repository.VerseFilter) ([]entity.Verse, uint, error)
 	UpdateFunc     func(ctx context.Context, verse *entity.Verse) error
 	DeleteFunc     func(ctx context.Context, id uint) error
 	BulkDeleteFunc func(ctx context.Context, ids []uint) error
@@ -28,9 +29,9 @@ func (m *MockVerseRepository) Create(ctx context.Context, v *entity.Verse) error
 	return nil
 }
 
-func (m *MockVerseRepository) List(ctx context.Context, offset, limit uint, search string) ([]entity.Verse, uint, error) {
+func (m *MockVerseRepository) List(ctx context.Context, filter repository.VerseFilter) ([]entity.Verse, uint, error) {
 	if m.ListFunc != nil {
-		return m.ListFunc(ctx, offset, limit, search)
+		return m.ListFunc(ctx, filter)
 	}
 	return nil, 0, nil
 }
@@ -323,7 +324,7 @@ func TestVerseUseCase_Create_RepositoryError(t *testing.T) {
 
 func TestVerseUseCase_List_Success(t *testing.T) {
 	mockVerseRepo := &MockVerseRepository{
-		ListFunc: func(ctx context.Context, offset, limit uint, search string) ([]entity.Verse, uint, error) {
+		ListFunc: func(ctx context.Context, filter repository.VerseFilter) ([]entity.Verse, uint, error) {
 			return []entity.Verse{
 				{ID: 1, ChapterID: 1, VerseNumber: 1, ArabicText: "Test 1"},
 				{ID: 2, ChapterID: 1, VerseNumber: 2, ArabicText: "Test 2"},
@@ -359,13 +360,13 @@ func TestVerseUseCase_List_Success(t *testing.T) {
 
 func TestVerseUseCase_List_DefaultParams(t *testing.T) {
 	mockVerseRepo := &MockVerseRepository{
-		ListFunc: func(ctx context.Context, offset, limit uint, search string) ([]entity.Verse, uint, error) {
+		ListFunc: func(ctx context.Context, filter repository.VerseFilter) ([]entity.Verse, uint, error) {
 			// Verify default values were applied
-			if offset != 0 {
-				t.Errorf("expected offset 0, got %d", offset)
+			if filter.Offset != 0 {
+				t.Errorf("expected offset 0, got %d", filter.Offset)
 			}
-			if limit != 20 {
-				t.Errorf("expected limit 20, got %d", limit)
+			if filter.Limit != 20 {
+				t.Errorf("expected limit 20, got %d", filter.Limit)
 			}
 			return []entity.Verse{}, 0, nil
 		},
@@ -391,9 +392,9 @@ func TestVerseUseCase_List_DefaultParams(t *testing.T) {
 func TestVerseUseCase_List_WithSearch(t *testing.T) {
 	searchTerm := "bismillah"
 	mockVerseRepo := &MockVerseRepository{
-		ListFunc: func(ctx context.Context, offset, limit uint, search string) ([]entity.Verse, uint, error) {
-			if search != searchTerm {
-				t.Errorf("expected search '%s', got '%s'", searchTerm, search)
+		ListFunc: func(ctx context.Context, filter repository.VerseFilter) ([]entity.Verse, uint, error) {
+			if filter.Search != searchTerm {
+				t.Errorf("expected search '%s', got '%s'", searchTerm, filter.Search)
 			}
 			return []entity.Verse{
 				{ID: 1, ChapterID: 1, VerseNumber: 1, ArabicText: "Bismillah"},
@@ -424,7 +425,7 @@ func TestVerseUseCase_List_WithSearch(t *testing.T) {
 
 func TestVerseUseCase_List_RepositoryError(t *testing.T) {
 	mockVerseRepo := &MockVerseRepository{
-		ListFunc: func(ctx context.Context, offset, limit uint, search string) ([]entity.Verse, uint, error) {
+		ListFunc: func(ctx context.Context, filter repository.VerseFilter) ([]entity.Verse, uint, error) {
 			return nil, 0, errors.New("db error")
 		},
 	}
@@ -448,7 +449,7 @@ func TestVerseUseCase_List_RepositoryError(t *testing.T) {
 
 func TestVerseUseCase_List_Pagination(t *testing.T) {
 	mockVerseRepo := &MockVerseRepository{
-		ListFunc: func(ctx context.Context, offset, limit uint, search string) ([]entity.Verse, uint, error) {
+		ListFunc: func(ctx context.Context, filter repository.VerseFilter) ([]entity.Verse, uint, error) {
 			return []entity.Verse{
 				{ID: 1, ChapterID: 1, VerseNumber: 1, ArabicText: "Test"},
 			}, 25, nil // Total 25 items
