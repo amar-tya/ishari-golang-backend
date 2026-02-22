@@ -24,23 +24,36 @@ func (r *TranslationRepository) Create(ctx context.Context, translation *entity.
 }
 
 // List implements TranslationRepository.
-func (r *TranslationRepository) List(ctx context.Context, offset, limit uint, search string) ([]entity.Translation, uint, error) {
+func (r *TranslationRepository) List(ctx context.Context, filter repository.TranslationListFilter) ([]entity.Translation, uint, error) {
 	var (
 		total        int64
 		translations []entity.Translation
 	)
 
 	base := r.db.WithContext(ctx).Model(&entity.Translation{})
-	if search = strings.TrimSpace(search); search != "" {
-		q := "%" + search + "%"
+
+	if filter.Search = strings.TrimSpace(filter.Search); filter.Search != "" {
+		q := "%" + filter.Search + "%"
 		base = base.Where("translation_text ILIKE ? OR translator_name ILIKE ?", q, q)
+	}
+
+	if filter.VerseID > 0 {
+		base = base.Where("verse_id = ?", filter.VerseID)
+	}
+
+	if filter.TranslatorName != "" {
+		base = base.Where("translator_name = ?", filter.TranslatorName)
+	}
+
+	if filter.LanguageCode != "" {
+		base = base.Where("language_code = ?", filter.LanguageCode)
 	}
 
 	if err := base.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	query := base.Preload("Verse").Order("verse_id ASC, language_code ASC").Offset(int(offset)).Limit(int(limit))
+	query := base.Preload("Verse").Order("verse_id ASC, language_code ASC").Offset(int(filter.Offset)).Limit(int(filter.Limit))
 	if err := query.Find(&translations).Error; err != nil {
 		return nil, 0, err
 	}

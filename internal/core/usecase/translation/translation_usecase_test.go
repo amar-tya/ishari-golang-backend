@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"ishari-backend/internal/core/entity"
+	"ishari-backend/internal/core/port/repository"
 	portuc "ishari-backend/internal/core/port/usecase"
 	"ishari-backend/internal/core/usecase/translation"
 )
@@ -14,7 +15,7 @@ import (
 // MockTranslationRepository is a manual mock for testing
 type MockTranslationRepository struct {
 	CreateFunc          func(ctx context.Context, translation *entity.Translation) error
-	ListFunc            func(ctx context.Context, offset, limit uint, search string) ([]entity.Translation, uint, error)
+	ListFunc            func(ctx context.Context, filter repository.TranslationListFilter) ([]entity.Translation, uint, error)
 	UpdateFunc          func(ctx context.Context, translation *entity.Translation) error
 	DeleteFunc          func(ctx context.Context, id uint) error
 	GetByIdFunc         func(ctx context.Context, id uint) (*entity.Translation, error)
@@ -30,9 +31,9 @@ func (m *MockTranslationRepository) Create(ctx context.Context, t *entity.Transl
 	return nil
 }
 
-func (m *MockTranslationRepository) List(ctx context.Context, offset, limit uint, search string) ([]entity.Translation, uint, error) {
+func (m *MockTranslationRepository) List(ctx context.Context, filter repository.TranslationListFilter) ([]entity.Translation, uint, error) {
 	if m.ListFunc != nil {
-		return m.ListFunc(ctx, offset, limit, search)
+		return m.ListFunc(ctx, filter)
 	}
 	return nil, 0, nil
 }
@@ -158,6 +159,18 @@ func TestTranslationUseCase_Create_Success(t *testing.T) {
 			tr.CreatedAt = time.Now()
 			tr.UpdatedAt = time.Now()
 			return nil
+		},
+		GetByIdFunc: func(ctx context.Context, id uint) (*entity.Translation, error) {
+			if id == 1 {
+				return &entity.Translation{
+					ID:              1,
+					VerseID:         1,
+					LanguageCode:    "en",
+					TranslationText: "In the name of God, the Most Gracious, the Most Merciful",
+					TranslatorName:  strPtr("Test Translator"),
+				}, nil
+			}
+			return nil, nil
 		},
 	}
 
@@ -436,7 +449,7 @@ func TestTranslationUseCase_GetById_RepositoryError(t *testing.T) {
 
 func TestTranslationUseCase_List_Success(t *testing.T) {
 	mockTransRepo := &MockTranslationRepository{
-		ListFunc: func(ctx context.Context, offset, limit uint, search string) ([]entity.Translation, uint, error) {
+		ListFunc: func(ctx context.Context, filter repository.TranslationListFilter) ([]entity.Translation, uint, error) {
 			return []entity.Translation{
 				{ID: 1, VerseID: 1, LanguageCode: "en", TranslationText: "Test 1"},
 				{ID: 2, VerseID: 1, LanguageCode: "id", TranslationText: "Test 2"},
@@ -449,7 +462,7 @@ func TestTranslationUseCase_List_Success(t *testing.T) {
 
 	uc := translation.NewTranslationUsecase(mockTransRepo, mockVerseRepo, mockLogger)
 
-	params := portuc.ListParams{
+	params := portuc.TranslationListParams{
 		Page:  1,
 		Limit: 10,
 	}
@@ -472,13 +485,13 @@ func TestTranslationUseCase_List_Success(t *testing.T) {
 
 func TestTranslationUseCase_List_DefaultParams(t *testing.T) {
 	mockTransRepo := &MockTranslationRepository{
-		ListFunc: func(ctx context.Context, offset, limit uint, search string) ([]entity.Translation, uint, error) {
+		ListFunc: func(ctx context.Context, filter repository.TranslationListFilter) ([]entity.Translation, uint, error) {
 			// Verify default values were applied
-			if offset != 0 {
-				t.Errorf("expected offset 0, got %d", offset)
+			if filter.Offset != 0 {
+				t.Errorf("expected offset 0, got %d", filter.Offset)
 			}
-			if limit != 20 {
-				t.Errorf("expected limit 20, got %d", limit)
+			if filter.Limit != 20 {
+				t.Errorf("expected limit 20, got %d", filter.Limit)
 			}
 			return []entity.Translation{}, 0, nil
 		},
@@ -489,7 +502,7 @@ func TestTranslationUseCase_List_DefaultParams(t *testing.T) {
 
 	uc := translation.NewTranslationUsecase(mockTransRepo, mockVerseRepo, mockLogger)
 
-	params := portuc.ListParams{
+	params := portuc.TranslationListParams{
 		Page:  0, // Should default to 1
 		Limit: 0, // Should default to 20
 	}
@@ -504,9 +517,9 @@ func TestTranslationUseCase_List_DefaultParams(t *testing.T) {
 func TestTranslationUseCase_List_WithSearch(t *testing.T) {
 	searchTerm := "bismillah"
 	mockTransRepo := &MockTranslationRepository{
-		ListFunc: func(ctx context.Context, offset, limit uint, search string) ([]entity.Translation, uint, error) {
-			if search != searchTerm {
-				t.Errorf("expected search '%s', got '%s'", searchTerm, search)
+		ListFunc: func(ctx context.Context, filter repository.TranslationListFilter) ([]entity.Translation, uint, error) {
+			if filter.Search != searchTerm {
+				t.Errorf("expected search '%s', got '%s'", searchTerm, filter.Search)
 			}
 			return []entity.Translation{
 				{ID: 1, VerseID: 1, LanguageCode: "en", TranslationText: "In the name of God"},
@@ -519,7 +532,7 @@ func TestTranslationUseCase_List_WithSearch(t *testing.T) {
 
 	uc := translation.NewTranslationUsecase(mockTransRepo, mockVerseRepo, mockLogger)
 
-	params := portuc.ListParams{
+	params := portuc.TranslationListParams{
 		Page:   1,
 		Limit:  10,
 		Search: searchTerm,
@@ -537,7 +550,7 @@ func TestTranslationUseCase_List_WithSearch(t *testing.T) {
 
 func TestTranslationUseCase_List_RepositoryError(t *testing.T) {
 	mockTransRepo := &MockTranslationRepository{
-		ListFunc: func(ctx context.Context, offset, limit uint, search string) ([]entity.Translation, uint, error) {
+		ListFunc: func(ctx context.Context, filter repository.TranslationListFilter) ([]entity.Translation, uint, error) {
 			return nil, 0, errors.New("db error")
 		},
 	}
@@ -547,7 +560,7 @@ func TestTranslationUseCase_List_RepositoryError(t *testing.T) {
 
 	uc := translation.NewTranslationUsecase(mockTransRepo, mockVerseRepo, mockLogger)
 
-	params := portuc.ListParams{
+	params := portuc.TranslationListParams{
 		Page:  1,
 		Limit: 10,
 	}
@@ -561,7 +574,7 @@ func TestTranslationUseCase_List_RepositoryError(t *testing.T) {
 
 func TestTranslationUseCase_List_Pagination(t *testing.T) {
 	mockTransRepo := &MockTranslationRepository{
-		ListFunc: func(ctx context.Context, offset, limit uint, search string) ([]entity.Translation, uint, error) {
+		ListFunc: func(ctx context.Context, filter repository.TranslationListFilter) ([]entity.Translation, uint, error) {
 			return []entity.Translation{
 				{ID: 1, VerseID: 1, LanguageCode: "en", TranslationText: "Test"},
 			}, 25, nil // Total 25 items
@@ -573,7 +586,7 @@ func TestTranslationUseCase_List_Pagination(t *testing.T) {
 
 	uc := translation.NewTranslationUsecase(mockTransRepo, mockVerseRepo, mockLogger)
 
-	params := portuc.ListParams{
+	params := portuc.TranslationListParams{
 		Page:  1,
 		Limit: 10,
 	}
@@ -958,5 +971,46 @@ func TestTranslationUseCase_Delete_RepositoryError(t *testing.T) {
 
 	if err == nil {
 		t.Error("expected error, got nil")
+	}
+}
+
+func TestTranslationUseCase_List_WithFilters(t *testing.T) {
+	mockTransRepo := &MockTranslationRepository{
+		ListFunc: func(ctx context.Context, filter repository.TranslationListFilter) ([]entity.Translation, uint, error) {
+			if filter.VerseID != 1 {
+				t.Errorf("expected VerseID 1, got %d", filter.VerseID)
+			}
+			if filter.TranslatorName != "Test Translator" {
+				t.Errorf("expected TranslatorName 'Test Translator', got '%s'", filter.TranslatorName)
+			}
+			if filter.LanguageCode != "en" {
+				t.Errorf("expected LanguageCode 'en', got '%s'", filter.LanguageCode)
+			}
+			return []entity.Translation{
+				{ID: 1, VerseID: 1, LanguageCode: "en", TranslationText: "In the name of God", TranslatorName: strPtr("Test Translator")},
+			}, 1, nil
+		},
+	}
+
+	mockVerseRepo := &MockVerseRepository{}
+	mockLogger := &MockLogger{}
+
+	uc := translation.NewTranslationUsecase(mockTransRepo, mockVerseRepo, mockLogger)
+
+	params := portuc.TranslationListParams{
+		Page:           1,
+		Limit:          10,
+		VerseID:        1,
+		TranslatorName: "Test Translator",
+		LanguageCode:   "en",
+	}
+
+	result, err := uc.List(context.Background(), params)
+
+	if err != nil {
+		t.Errorf("expected no error, got %v", err)
+	}
+	if result.Total != 1 {
+		t.Errorf("expected total 1, got %d", result.Total)
 	}
 }
