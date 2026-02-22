@@ -115,40 +115,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "book_id",
-            "in": "query",
-            "description": "Filter by book ID.",
-            "required": false,
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "name": "chapter",
-            "in": "query",
-            "description": "Filter by chapter title (partial match).",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "category",
-            "in": "query",
-            "description": "Filter by category (exact match).",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "Diwan",
-                "Muhud",
-                "Diba",
-                "Rawi",
-                "Muradah"
-              ]
-            }
           }
         ],
         "responses": {
@@ -435,6 +401,40 @@
             "required": false,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "book_id",
+            "in": "query",
+            "description": "Filter by book ID.",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "chapter",
+            "in": "query",
+            "description": "Filter by chapter title (partial match).",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "description": "Filter by category (exact match).",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "Diwan",
+                "Muhud",
+                "Diba",
+                "Rawi",
+                "Muradah"
+              ]
             }
           }
         ],
