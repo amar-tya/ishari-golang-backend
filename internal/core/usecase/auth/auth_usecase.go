@@ -148,8 +148,3 @@ func (uc *authUseCase) ValidateToken(ctx context.Context, token string) (*portuc
 	}, nil
 }
 
-// GetUserFromContext is a helper to get user info from validated token
-func GetUserFromContext(ctx context.Context) (*portuc.TokenClaims, bool) {
-	claims, ok := ctx.Value("user").(*portuc.TokenClaims)
-	return claims, ok
-}

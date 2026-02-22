@@ -36,3 +36,21 @@ type TokenClaims struct {
 	Username string
 	Email    string
 }
+
+// contextKey is a private type for context keys to avoid collisions
+type contextKey string
+
+const (
+	userContextKey contextKey = "user"
+)
+
+// NewContextWithUser returns a new context with the user claims
+func NewContextWithUser(ctx context.Context, claims *TokenClaims) context.Context {
+	return context.WithValue(ctx, userContextKey, claims)
+}
+
+// GetUserFromContext extracts user claims from the context
+func GetUserFromContext(ctx context.Context) (*TokenClaims, bool) {
+	claims, ok := ctx.Value(userContextKey).(*TokenClaims)
+	return claims, ok
+}

@@ -145,6 +145,17 @@ func (uc *userUseCase) Update(ctx context.Context, id uint, input portuc.UpdateU
 
 // Delete removes a user (soft delete)
 func (uc *userUseCase) Delete(ctx context.Context, id uint) error {
+	// Extract requester ID from context
+	claims, ok := portuc.GetUserFromContext(ctx)
+	if !ok {
+		return ErrUnauthorizedOperation
+	}
+
+	// Verify requester is authorized (only user can delete their own account)
+	if claims.UserID != id {
+		return ErrUnauthorizedOperation
+	}
+
 	// Verify user exists
 	_, err := uc.userRepo.GetByID(ctx, id)
 	if err != nil {

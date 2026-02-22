@@ -366,10 +366,33 @@ func TestUserUseCase_Delete_Success(t *testing.T) {
 
 	uc := user.NewUserUseCase(mockRepo, mockHasher)
 
-	err := uc.Delete(context.Background(), 1)
+	// Create context with authorized user
+	ctx := portuc.NewContextWithUser(context.Background(), &portuc.TokenClaims{UserID: 1})
+
+	err := uc.Delete(ctx, 1)
 
 	if err != nil {
 		t.Errorf("expected no error, got %v", err)
+	}
+}
+
+func TestUserUseCase_Delete_Unauthorized(t *testing.T) {
+	mockRepo := &MockUserRepository{}
+	mockHasher := &MockPasswordHasher{}
+
+	uc := user.NewUserUseCase(mockRepo, mockHasher)
+
+	// Case 1: No user in context
+	err := uc.Delete(context.Background(), 1)
+	if !errors.Is(err, user.ErrUnauthorizedOperation) {
+		t.Errorf("expected ErrUnauthorizedOperation when no user in context, got %v", err)
+	}
+
+	// Case 2: Different user in context (IDOR attempt)
+	ctx := portuc.NewContextWithUser(context.Background(), &portuc.TokenClaims{UserID: 2})
+	err = uc.Delete(ctx, 1)
+	if !errors.Is(err, user.ErrUnauthorizedOperation) {
+		t.Errorf("expected ErrUnauthorizedOperation when deleting another user, got %v", err)
 	}
 }
 
@@ -383,7 +406,10 @@ func TestUserUseCase_Delete_NotFound(t *testing.T) {
 
 	uc := user.NewUserUseCase(mockRepo, mockHasher)
 
-	err := uc.Delete(context.Background(), 999)
+	// Create context with authorized user
+	ctx := portuc.NewContextWithUser(context.Background(), &portuc.TokenClaims{UserID: 999})
+
+	err := uc.Delete(ctx, 999)
 
 	if err == nil {
 		t.Error("expected error for non-existent user, got nil")
