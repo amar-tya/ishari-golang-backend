@@ -37,11 +37,24 @@ func (c *ChapterController) List(ctx *fiber.Ctx) error {
 	page, _ := strconv.Atoi(ctx.Query("page", "1"))
 	limit, _ := strconv.Atoi(ctx.Query("limit", "20"))
 	search := ctx.Query("search", "")
+	title := ctx.Query("chapter", "")
+	category := ctx.Query("category", "")
+
+	var bookID *uint
+	if idStr := ctx.Query("book_id", ""); idStr != "" {
+		if id, err := strconv.Atoi(idStr); err == nil {
+			uID := uint(id)
+			bookID = &uID
+		}
+	}
 
 	params := portuc.ListChapterInput{
-		Page:   page,
-		Limit:  limit,
-		Search: search,
+		Page:     page,
+		Limit:    limit,
+		Search:   search,
+		BookID:   bookID,
+		Title:    title,
+		Category: category,
 	}
 
 	result, err := c.chapterUsecase.List(ctx.UserContext(), params)

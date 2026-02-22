@@ -66,7 +66,7 @@ func (m *MockVerseRepository) GetById(ctx context.Context, id uint) (*entity.Ver
 // MockChapterRepository is a manual mock for testing
 type MockChapterRepository struct {
 	CreateChapterFunc       func(ctx context.Context, chapter *entity.Chapter) error
-	ListChaptersFunc        func(ctx context.Context, offset, limit int, search string) ([]entity.Chapter, int64, error)
+	ListChaptersFunc        func(ctx context.Context, offset, limit int, search string, bookID *uint, title string, category string) ([]entity.Chapter, int64, error)
 	GetChaptersByBookIDFunc func(ctx context.Context, bookID uint) ([]entity.Chapter, int64, error)
 	GetChapterByIDFunc      func(ctx context.Context, id uint) (*entity.Chapter, error)
 	UpdateChapterFunc       func(ctx context.Context, chapter *entity.Chapter) error
@@ -81,9 +81,9 @@ func (m *MockChapterRepository) CreateChapter(ctx context.Context, chapter *enti
 	return nil
 }
 
-func (m *MockChapterRepository) ListChapters(ctx context.Context, offset, limit int, search string) ([]entity.Chapter, int64, error) {
+func (m *MockChapterRepository) ListChapters(ctx context.Context, offset, limit int, search string, bookID *uint, title string, category string) ([]entity.Chapter, int64, error) {
 	if m.ListChaptersFunc != nil {
-		return m.ListChaptersFunc(ctx, offset, limit, search)
+		return m.ListChaptersFunc(ctx, offset, limit, search, bookID, title, category)
 	}
 	return nil, 0, nil
 }
