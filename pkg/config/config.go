@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"time"
 
 	"github.com/spf13/viper"
@@ -42,7 +43,7 @@ type Config struct {
 	JWT      JWTConfig
 }
 
-func Load() Config {
+func Load() (Config, error) {
 	_ = gotenv.Load()
 
 	viper.SetDefault("SERVER_HOST", "localhost")
@@ -64,11 +65,18 @@ func Load() Config {
 	viper.SetDefault("DB_LOG_LEVEL", "warn")
 
 	// JWT defaults
-	viper.SetDefault("JWT_SECRET", "your-super-secret-key-change-in-production")
 	viper.SetDefault("JWT_ACCESS_TOKEN_TTL_MIN", 15)
 	viper.SetDefault("JWT_REFRESH_TOKEN_TTL_DAYS", 7)
 
 	viper.AutomaticEnv()
+
+	jwtSecret := viper.GetString("JWT_SECRET")
+	if jwtSecret == "" {
+		return Config{}, errors.New("JWT_SECRET environment variable is not set")
+	}
+	if jwtSecret == "your-super-secret-key-change-in-production" {
+		return Config{}, errors.New("JWT_SECRET is set to the default insecure value. Please change it in production")
+	}
 
 	logLevel := logger.Warn
 	switch viper.GetString("DB_LOG_LEVEL") {
@@ -104,9 +112,9 @@ func Load() Config {
 			LogLevel:        logLevel,
 		},
 		JWT: JWTConfig{
-			Secret:          viper.GetString("JWT_SECRET"),
+			Secret:          jwtSecret,
 			AccessTokenTTL:  time.Duration(viper.GetInt("JWT_ACCESS_TOKEN_TTL_MIN")) * time.Minute,
 			RefreshTokenTTL: time.Duration(viper.GetInt("JWT_REFRESH_TOKEN_TTL_DAYS")) * 24 * time.Hour,
 		},
-	}
+	}, nil
 }
