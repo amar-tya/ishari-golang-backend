@@ -61,7 +61,9 @@ func (uc *authUseCase) Login(ctx context.Context, input portuc.LoginInput) (*por
 	}
 
 	// Update last login time
-	_ = uc.userRepo.UpdateLastLoginAt(ctx, user.ID)
+	go func() {
+		_ = uc.userRepo.UpdateLastLoginAt(context.WithoutCancel(ctx), user.ID)
+	}()
 
 	return &portuc.AuthResult{
 		User:         user,
