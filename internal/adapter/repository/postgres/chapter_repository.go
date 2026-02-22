@@ -25,7 +25,7 @@ func (r *chapterRepository) CreateChapter(ctx context.Context, chapter *entity.C
 }
 
 // ListChapters retrieves paginated chapters with optional search
-func (r *chapterRepository) ListChapters(ctx context.Context, offset, limit int, search string) ([]entity.Chapter, int64, error) {
+func (r *chapterRepository) ListChapters(ctx context.Context, offset, limit int, search string, bookID *uint, title string, category string) ([]entity.Chapter, int64, error) {
 	var (
 		total    int64
 		chapters []entity.Chapter
@@ -35,6 +35,18 @@ func (r *chapterRepository) ListChapters(ctx context.Context, offset, limit int,
 	if search = strings.TrimSpace(search); search != "" {
 		q := "%" + search + "%"
 		base = base.Where("title ILIKE ? OR category ILIKE ?", q, q)
+	}
+
+	if bookID != nil {
+		base = base.Where("book_id = ?", *bookID)
+	}
+
+	if title = strings.TrimSpace(title); title != "" {
+		base = base.Where("title ILIKE ?", "%"+title+"%")
+	}
+
+	if category = strings.TrimSpace(category); category != "" {
+		base = base.Where("category = ?", category)
 	}
 
 	if err := base.Count(&total).Error; err != nil {

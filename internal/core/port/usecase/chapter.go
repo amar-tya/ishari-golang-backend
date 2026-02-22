@@ -38,9 +38,12 @@ type UpdateChapterInput struct {
 
 // ListChapterInput contains data required to list chapters.
 type ListChapterInput struct {
-	Page   int
-	Limit  int
-	Search string
+	Page     int
+	Limit    int
+	Search   string
+	BookID   *uint
+	Title    string
+	Category string
 }
 
 // PaginatedResult is a generic pagination wrapper

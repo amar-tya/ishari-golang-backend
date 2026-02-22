@@ -14,7 +14,7 @@ import (
 // MockChapterRepository is a manual mock for ChapterRepository
 type MockChapterRepository struct {
 	CreateChapterFunc       func(ctx context.Context, ch *entity.Chapter) error
-	ListChaptersFunc        func(ctx context.Context, offset, limit int, search string) ([]entity.Chapter, int64, error)
+	ListChaptersFunc        func(ctx context.Context, offset, limit int, search string, bookID *uint, title string, category string) ([]entity.Chapter, int64, error)
 	GetChaptersByBookIDFunc func(ctx context.Context, bookID uint) ([]entity.Chapter, int64, error)
 	GetChapterByIDFunc      func(ctx context.Context, id uint) (*entity.Chapter, error)
 	UpdateChapterFunc       func(ctx context.Context, ch *entity.Chapter) error
@@ -29,9 +29,9 @@ func (m *MockChapterRepository) CreateChapter(ctx context.Context, ch *entity.Ch
 	return nil
 }
 
-func (m *MockChapterRepository) ListChapters(ctx context.Context, offset, limit int, search string) ([]entity.Chapter, int64, error) {
+func (m *MockChapterRepository) ListChapters(ctx context.Context, offset, limit int, search string, bookID *uint, title string, category string) ([]entity.Chapter, int64, error) {
 	if m.ListChaptersFunc != nil {
-		return m.ListChaptersFunc(ctx, offset, limit, search)
+		return m.ListChaptersFunc(ctx, offset, limit, search, bookID, title, category)
 	}
 	return nil, 0, nil
 }
@@ -329,7 +329,7 @@ func TestChapterUsecase_Create_RepositoryError(t *testing.T) {
 
 func TestChapterUsecase_List_Success(t *testing.T) {
 	mockChapterRepo := &MockChapterRepository{
-		ListChaptersFunc: func(ctx context.Context, offset, limit int, search string) ([]entity.Chapter, int64, error) {
+		ListChaptersFunc: func(ctx context.Context, offset, limit int, search string, bookID *uint, title string, category string) ([]entity.Chapter, int64, error) {
 			return []entity.Chapter{
 				{ID: 1, Title: "Chapter 1"},
 				{ID: 2, Title: "Chapter 2"},
@@ -358,10 +358,47 @@ func TestChapterUsecase_List_Success(t *testing.T) {
 	}
 }
 
+func TestChapterUsecase_List_WithFilters(t *testing.T) {
+	mockChapterRepo := &MockChapterRepository{
+		ListChaptersFunc: func(ctx context.Context, offset, limit int, search string, bookID *uint, title string, category string) ([]entity.Chapter, int64, error) {
+			if bookID == nil || *bookID != 1 {
+				t.Errorf("expected bookID 1, got %v", bookID)
+			}
+			if title != "Test" {
+				t.Errorf("expected title 'Test', got %s", title)
+			}
+			if category != "Test Cat" {
+				t.Errorf("expected category 'Test Cat', got %s", category)
+			}
+			return []entity.Chapter{
+				{ID: 1, Title: "Chapter 1"},
+			}, 1, nil
+		},
+	}
+	mockBookRepo := &MockBookRepository{}
+	mockLogger := &MockLogger{}
+
+	uc := chapter.NewChapterUsecase(mockChapterRepo, mockBookRepo, mockLogger)
+	id := uint(1)
+	params := portuc.ListChapterInput{
+		Page:     1,
+		Limit:    20,
+		BookID:   &id,
+		Title:    "Test",
+		Category: "Test Cat",
+	}
+
+	_, err := uc.List(context.Background(), params)
+
+	if err != nil {
+		t.Errorf("expected no error, got %v", err)
+	}
+}
+
 func TestChapterUsecase_List_DefaultValues(t *testing.T) {
 	var capturedOffset, capturedLimit int
 	mockChapterRepo := &MockChapterRepository{
-		ListChaptersFunc: func(ctx context.Context, offset, limit int, search string) ([]entity.Chapter, int64, error) {
+		ListChaptersFunc: func(ctx context.Context, offset, limit int, search string, bookID *uint, title string, category string) ([]entity.Chapter, int64, error) {
 			capturedOffset = offset
 			capturedLimit = limit
 			return []entity.Chapter{}, 0, nil
@@ -391,7 +428,7 @@ func TestChapterUsecase_List_DefaultValues(t *testing.T) {
 
 func TestChapterUsecase_List_RepositoryError(t *testing.T) {
 	mockChapterRepo := &MockChapterRepository{
-		ListChaptersFunc: func(ctx context.Context, offset, limit int, search string) ([]entity.Chapter, int64, error) {
+		ListChaptersFunc: func(ctx context.Context, offset, limit int, search string, bookID *uint, title string, category string) ([]entity.Chapter, int64, error) {
 			return nil, 0, errors.New("database error")
 		},
 	}

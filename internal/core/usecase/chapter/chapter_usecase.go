@@ -127,7 +127,7 @@ func (u *chapterUsecase) List(ctx context.Context, params portuc.ListChapterInpu
 
 	offset := (params.Page - 1) * params.Limit
 
-	chapters, total, err := u.chapterRepo.ListChapters(ctx, offset, params.Limit, params.Search)
+	chapters, total, err := u.chapterRepo.ListChapters(ctx, offset, params.Limit, params.Search, params.BookID, params.Title, params.Category)
 	if err != nil {
 		u.log.Error("failed to list chapters", "error", err)
 		return nil, domain.NewInternalError("failed to list chapters", err)
