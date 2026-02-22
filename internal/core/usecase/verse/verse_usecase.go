@@ -107,7 +107,16 @@ func (u *verseUsecase) List(ctx context.Context, params portuc.ListParams) (*por
 
 	offset := (params.Page - 1) * params.Limit
 
-	verses, total, err := u.verseRepo.List(ctx, offset, params.Limit, params.Search)
+	filter := repository.VerseFilter{
+		Offset:          offset,
+		Limit:           params.Limit,
+		Search:          params.Search,
+		ChapterID:       params.ChapterID,
+		ArabicText:      params.ArabicText,
+		Transliteration: params.Transliteration,
+	}
+
+	verses, total, err := u.verseRepo.List(ctx, filter)
 	if err != nil {
 		u.log.Error("failed to list verses", "error", err)
 		return nil, domain.NewInternalError("failed to list verses", err)

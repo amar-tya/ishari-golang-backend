@@ -24,14 +24,27 @@ func (r *VerseRepository) Create(ctx context.Context, verse *entity.Verse) error
 }
 
 // List implements VerseRepository.
-func (r *VerseRepository) List(ctx context.Context, offset, limit uint, search string) ([]entity.Verse, uint, error) {
+func (r *VerseRepository) List(ctx context.Context, filter repository.VerseFilter) ([]entity.Verse, uint, error) {
 	var (
 		total  int64
 		verses []entity.Verse
 	)
 
 	base := r.db.WithContext(ctx).Model(&entity.Verse{})
-	if search = strings.TrimSpace(search); search != "" {
+
+	if filter.ChapterID != nil {
+		base = base.Where("chapter_id = ?", *filter.ChapterID)
+	}
+
+	if filter.ArabicText != "" {
+		base = base.Where("arabic_text ILIKE ?", "%"+filter.ArabicText+"%")
+	}
+
+	if filter.Transliteration != "" {
+		base = base.Where("transliteration ILIKE ?", "%"+filter.Transliteration+"%")
+	}
+
+	if search := strings.TrimSpace(filter.Search); search != "" {
 		q := "%" + search + "%"
 		base = base.Where("arabic_text ILIKE ? OR transliteration ILIKE ?", q, q)
 	}
@@ -40,7 +53,7 @@ func (r *VerseRepository) List(ctx context.Context, offset, limit uint, search s
 		return nil, 0, err
 	}
 
-	query := base.Preload("Chapter").Order("chapter_id ASC, verse_number ASC").Offset(int(offset)).Limit(int(limit))
+	query := base.Preload("Chapter").Order("chapter_id ASC, verse_number ASC").Offset(int(filter.Offset)).Limit(int(filter.Limit))
 	if err := query.Find(&verses).Error; err != nil {
 		return nil, 0, err
 	}
