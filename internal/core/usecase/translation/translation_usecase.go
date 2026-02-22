@@ -96,7 +96,7 @@ func (u *translationUsecase) GetById(ctx context.Context, id uint) (*entity.Tran
 }
 
 // List translations for a verse
-func (u *translationUsecase) List(ctx context.Context, params portuc.ListParams) (*portuc.PaginatedResult[entity.Translation], error) {
+func (u *translationUsecase) List(ctx context.Context, params portuc.TranslationListParams) (*portuc.PaginatedResult[entity.Translation], error) {
 	// apply param default
 	if params.Page <= 0 {
 		params.Page = 1
@@ -107,7 +107,16 @@ func (u *translationUsecase) List(ctx context.Context, params portuc.ListParams)
 
 	offset := (params.Page - 1) * params.Limit
 
-	translations, total, err := u.translationRepository.List(ctx, offset, params.Limit, params.Search)
+	filter := repository.TranslationListFilter{
+		Offset:         offset,
+		Limit:          params.Limit,
+		Search:         params.Search,
+		VerseID:        params.VerseID,
+		TranslatorName: params.TranslatorName,
+		LanguageCode:   params.LanguageCode,
+	}
+
+	translations, total, err := u.translationRepository.List(ctx, filter)
 	if err != nil {
 		u.log.Error("failed to list translations", "error", err)
 		return nil, domain.NewInternalError("failed to list translations", err)
