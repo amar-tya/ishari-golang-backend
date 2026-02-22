@@ -28,4 +28,7 @@ var (
 
 	// ErrInvalidUsername indicates username does not meet requirements
 	ErrInvalidUsername = errors.New("username must be 3-50 characters, alphanumeric and underscores only")
+
+	// ErrUnauthorizedOperation indicates the user is not allowed to perform the action
+	ErrUnauthorizedOperation = errors.New("unauthorized operation")
 )

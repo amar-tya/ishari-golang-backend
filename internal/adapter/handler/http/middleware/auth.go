@@ -44,6 +44,10 @@ func AuthMiddleware(authUC portuc.AuthUseCase) fiber.Handler {
 		c.Locals("user", claims)
 		c.Locals("token", token)
 
+		// Propagate claims to UserContext for usecase layer
+		ctx := portuc.NewContextWithUser(c.UserContext(), claims)
+		c.SetUserContext(ctx)
+
 		return c.Next()
 	}
 }
