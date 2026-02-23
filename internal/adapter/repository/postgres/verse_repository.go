@@ -53,7 +53,7 @@ func (r *VerseRepository) List(ctx context.Context, filter repository.VerseFilte
 		return nil, 0, err
 	}
 
-	query := base.Preload("Chapter").Order("chapter_id ASC, verse_number ASC").Offset(int(filter.Offset)).Limit(int(filter.Limit))
+	query := base.Preload("Chapter").Preload("Chapter.Book").Order("chapter_id ASC, verse_number ASC").Offset(int(filter.Offset)).Limit(int(filter.Limit))
 	if err := query.Find(&verses).Error; err != nil {
 		return nil, 0, err
 	}
@@ -64,7 +64,7 @@ func (r *VerseRepository) List(ctx context.Context, filter repository.VerseFilte
 // GetById implements VerseRepository.
 func (r *VerseRepository) GetById(ctx context.Context, id uint) (*entity.Verse, error) {
 	var verse entity.Verse
-	if err := r.db.WithContext(ctx).Preload("Chapter").First(&verse, id).Error; err != nil {
+	if err := r.db.WithContext(ctx).Preload("Chapter").Preload("Chapter.Book").First(&verse, id).Error; err != nil {
 		return nil, err
 	}
 	return &verse, nil

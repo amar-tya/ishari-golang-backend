@@ -217,6 +217,10 @@ func (u *chapterUsecase) Update(ctx context.Context, id uint, input portuc.Updat
 		chapter.TotalVerses = *input.TotalVerses
 	}
 
+	if input.Description != nil {
+		chapter.Description = input.Description
+	}
+
 	if err := u.chapterRepo.UpdateChapter(ctx, chapter); err != nil {
 		u.log.Error("failed to update chapter", "error", err, "chapter_id", id)
 		return nil, domain.NewInternalError("failed to update chapter", err)

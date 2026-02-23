@@ -53,7 +53,7 @@ func (r *chapterRepository) ListChapters(ctx context.Context, offset, limit int,
 		return nil, 0, err
 	}
 
-	query := base.Order("book_id ASC, chapter_number ASC").Offset(offset).Limit(limit)
+	query := base.Order("book_id ASC, chapter_number ASC").Offset(offset).Limit(limit).Preload("Book")
 	if err := query.Find(&chapters).Error; err != nil {
 		return nil, 0, err
 	}
@@ -74,7 +74,7 @@ func (r *chapterRepository) GetChaptersByBookID(ctx context.Context, bookID uint
 		return nil, 0, err
 	}
 
-	if err := base.Order("chapter_number ASC").Find(&chapters).Error; err != nil {
+	if err := base.Order("chapter_number ASC").Preload("Book").Find(&chapters).Error; err != nil {
 		return nil, 0, err
 	}
 
@@ -84,7 +84,7 @@ func (r *chapterRepository) GetChaptersByBookID(ctx context.Context, bookID uint
 // GetChapterByID retrieves a chapter by its ID
 func (r *chapterRepository) GetChapterByID(ctx context.Context, id uint) (*entity.Chapter, error) {
 	var chapter entity.Chapter
-	if err := r.db.WithContext(ctx).First(&chapter, id).Error; err != nil {
+	if err := r.db.WithContext(ctx).Preload("Book").First(&chapter, id).Error; err != nil {
 		return nil, err
 	}
 	return &chapter, nil

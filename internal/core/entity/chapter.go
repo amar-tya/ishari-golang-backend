@@ -14,6 +14,7 @@ type Chapter struct {
 	Category      string         `json:"category" gorm:"not null"`
 	Description   *string        `json:"description,omitempty"`
 	TotalVerses   uint           `json:"total_verses" gorm:"default:0"`
+	Book          *Book          `json:"book,omitempty" gorm:"foreignKey:BookID"`
 	CreatedAt     time.Time      `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt     time.Time      `json:"updated_at" gorm:"autoUpdateTime"`
 	DeletedAt     gorm.DeletedAt `json:"-" gorm:"index"`

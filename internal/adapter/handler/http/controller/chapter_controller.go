@@ -77,7 +77,7 @@ func (c *ChapterController) List(ctx *fiber.Ctx) error {
 
 // toListChapterResponse converts a Chapter to a ListChapterResponse
 func (c *ChapterController) toListChapterResponse(chapter *entity.Chapter) dto.ListChapterResponse {
-	return dto.ListChapterResponse{
+	resp := dto.ListChapterResponse{
 		ID:            chapter.ID,
 		BookID:        chapter.BookID,
 		ChapterNumber: chapter.ChapterNumber,
@@ -88,6 +88,21 @@ func (c *ChapterController) toListChapterResponse(chapter *entity.Chapter) dto.L
 		CreatedAt:     chapter.CreatedAt.UTC().Format(time.RFC3339),
 		UpdatedAt:     chapter.UpdatedAt.UTC().Format(time.RFC3339),
 	}
+
+	if chapter.Book != nil {
+		resp.Book = &dto.BookResponse{
+			ID:            chapter.Book.ID,
+			Title:         chapter.Book.Title,
+			Author:        chapter.Book.Author,
+			Description:   chapter.Book.Description,
+			PublishedYear: chapter.Book.PublishedYear,
+			CoverImageURL: chapter.Book.CoverImageURL,
+			CreatedAt:     chapter.Book.CreatedAt.UTC().Format(time.RFC3339),
+			UpdatedAt:     chapter.Book.UpdatedAt.UTC().Format(time.RFC3339),
+		}
+	}
+
+	return resp
 }
 
 // GetByID handles getting a chapter by ID

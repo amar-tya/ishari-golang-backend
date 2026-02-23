@@ -2,15 +2,16 @@ package dto
 
 // ListChapterResponse represent the HTTP response for listing chapters
 type ListChapterResponse struct {
-	ID            uint    `json:"id"`
-	BookID        uint    `json:"book_id"`
-	ChapterNumber uint    `json:"chapter_number"`
-	Title         string  `json:"title"`
-	Category      string  `json:"category"`
-	Description   *string `json:"description,omitempty"`
-	TotalVerses   uint    `json:"total_verses"`
-	CreatedAt     string  `json:"created_at"`
-	UpdatedAt     string  `json:"updated_at"`
+	ID            uint          `json:"id"`
+	BookID        uint          `json:"book_id"`
+	ChapterNumber uint          `json:"chapter_number"`
+	Title         string        `json:"title"`
+	Category      string        `json:"category"`
+	Description   *string       `json:"description,omitempty"`
+	TotalVerses   uint          `json:"total_verses"`
+	Book          *BookResponse `json:"book,omitempty"`
+	CreatedAt     string        `json:"created_at"`
+	UpdatedAt     string        `json:"updated_at"`
 }
 
 // CreateChapterRequest represents the HTTP request for creating a chapter

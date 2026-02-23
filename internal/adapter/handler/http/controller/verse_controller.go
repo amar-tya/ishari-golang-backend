@@ -70,6 +70,19 @@ func (c *VerseController) toListVerseResponse(verse *entity.Verse) dto.ListVerse
 			CreatedAt:     verse.Chapter.CreatedAt.UTC().Format(time.RFC3339),
 			UpdatedAt:     verse.Chapter.UpdatedAt.UTC().Format(time.RFC3339),
 		}
+
+		if verse.Chapter.Book != nil {
+			chapterResp.Book = &dto.BookResponse{
+				ID:            verse.Chapter.Book.ID,
+				Title:         verse.Chapter.Book.Title,
+				Author:        verse.Chapter.Book.Author,
+				Description:   verse.Chapter.Book.Description,
+				PublishedYear: verse.Chapter.Book.PublishedYear,
+				CoverImageURL: verse.Chapter.Book.CoverImageURL,
+				CreatedAt:     verse.Chapter.Book.CreatedAt.UTC().Format(time.RFC3339),
+				UpdatedAt:     verse.Chapter.Book.UpdatedAt.UTC().Format(time.RFC3339),
+			}
+		}
 	}
 
 	return dto.ListVerseResponse{
