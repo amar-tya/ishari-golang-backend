@@ -21,6 +21,7 @@ type MockUserRepository struct {
 	DeleteFunc               func(ctx context.Context, id uint) error
 	UpdateFunc               func(ctx context.Context, user *entity.User) error
 	ListUsersFunc            func(ctx context.Context, offset, limit int, search string) ([]entity.User, int64, error)
+	BulkDeleteFunc           func(ctx context.Context, ids []uint) error
 }
 
 func (m *MockUserRepository) Create(ctx context.Context, u *entity.User) error {
@@ -70,6 +71,13 @@ func (m *MockUserRepository) ListUsers(ctx context.Context, offset, limit int, s
 		return m.ListUsersFunc(ctx, offset, limit, search)
 	}
 	return nil, 0, nil
+}
+
+func (m *MockUserRepository) BulkDelete(ctx context.Context, ids []uint) error {
+	if m.BulkDeleteFunc != nil {
+		return m.BulkDeleteFunc(ctx, ids)
+	}
+	return nil
 }
 
 // MockPasswordHasher is a manual mock for password hashing

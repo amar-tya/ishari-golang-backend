@@ -43,6 +43,7 @@ func (m *MockUserRepository) Update(ctx context.Context, u *entity.User) error {
 func (m *MockUserRepository) ListUsers(ctx context.Context, o, l int, s string) ([]entity.User, int64, error) {
 	return nil, 0, nil
 }
+func (m *MockUserRepository) BulkDelete(ctx context.Context, ids []uint) error { return nil }
 
 // MockTokenService for testing
 type MockTokenService struct {

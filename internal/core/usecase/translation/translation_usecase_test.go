@@ -83,7 +83,7 @@ func (m *MockTranslationRepository) BulkDelete(ctx context.Context, ids []uint) 
 // MockVerseRepository is a manual mock for testing
 type MockVerseRepository struct {
 	CreateFunc     func(ctx context.Context, verse *entity.Verse) error
-	ListFunc       func(ctx context.Context, offset, limit uint, search string) ([]entity.Verse, uint, error)
+	ListFunc       func(ctx context.Context, filter repository.VerseFilter) ([]entity.Verse, uint, error)
 	UpdateFunc     func(ctx context.Context, verse *entity.Verse) error
 	DeleteFunc     func(ctx context.Context, id uint) error
 	BulkDeleteFunc func(ctx context.Context, ids []uint) error
@@ -97,9 +97,9 @@ func (m *MockVerseRepository) Create(ctx context.Context, v *entity.Verse) error
 	return nil
 }
 
-func (m *MockVerseRepository) List(ctx context.Context, offset, limit uint, search string) ([]entity.Verse, uint, error) {
+func (m *MockVerseRepository) List(ctx context.Context, filter repository.VerseFilter) ([]entity.Verse, uint, error) {
 	if m.ListFunc != nil {
-		return m.ListFunc(ctx, offset, limit, search)
+		return m.ListFunc(ctx, filter)
 	}
 	return nil, 0, nil
 }

@@ -99,3 +99,11 @@ func (r *userRepository) ListUsers(ctx context.Context, offset, limit int, searc
 
 	return users, total, nil
 }
+
+// BulkDelete performs a soft delete on multiple users
+func (r *userRepository) BulkDelete(ctx context.Context, ids []uint) error {
+	return r.db.WithContext(ctx).
+		Model(&entity.User{}).
+		Where("id IN ?", ids).
+		Update("deleted_at", time.Now()).Error
+}

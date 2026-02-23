@@ -220,6 +220,43 @@ func (h *UserController) DeleteUser(c *fiber.Ctx) error {
 	})
 }
 
+// BulkDelete handles mass user deletion
+// POST /api/v1/users/bulk-delete
+func (h *UserController) BulkDelete(c *fiber.Ctx) error {
+	var req dto.BulkDeleteUserRequest
+	if err := c.BodyParser(&req); err != nil {
+		h.log.Error("BulkDelete body parse error", "error", err)
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"status":  "error",
+			"message": "invalid request body",
+			"error":   err.Error(),
+		})
+	}
+
+	if err := h.validate.Struct(req); err != nil {
+		h.log.Error("BulkDelete validation failed", "error", err)
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"status":  "error",
+			"message": "validation failed",
+			"error":   err.Error(),
+		})
+	}
+
+	if err := h.userUseCase.BulkDelete(c.UserContext(), req.IDs); err != nil {
+		h.log.Error("BulkDelete failed", "error", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"status":  "error",
+			"message": "failed to delete users",
+			"error":   err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"status":  "success",
+		"message": "users deleted successfully",
+	})
+}
+
 // ListUsers retrieves paginated users
 // GET /api/v1/users
 func (h *UserController) ListUsers(c *fiber.Ctx) error {

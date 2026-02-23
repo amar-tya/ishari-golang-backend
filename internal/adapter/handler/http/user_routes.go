@@ -21,4 +21,5 @@ func RegisterUserRoutes(router fiber.Router, ctrl *controller.UserController, au
 	protected.Get("/:id", ctrl.GetUserByID)
 	protected.Put("/:id", ctrl.UpdateUser)
 	protected.Delete("/:id", ctrl.DeleteUser)
+	protected.Post("/bulk-delete", ctrl.BulkDelete)
 }

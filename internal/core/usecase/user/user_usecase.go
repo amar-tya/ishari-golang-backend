@@ -185,6 +185,11 @@ func (uc *userUseCase) List(ctx context.Context, params portuc.ListUserParams) (
 	}, nil
 }
 
+// BulkDelete removes multiple users (soft delete)
+func (uc *userUseCase) BulkDelete(ctx context.Context, ids []uint) error {
+	return uc.userRepo.BulkDelete(ctx, ids)
+}
+
 // validateRegistration validates registration input
 func (uc *userUseCase) validateRegistration(input portuc.RegisterUserInput) error {
 	if err := uc.validateUsername(input.Username); err != nil {

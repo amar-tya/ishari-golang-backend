@@ -49,3 +49,8 @@ type AuthResponse struct {
 type RefreshTokenRequest struct {
 	RefreshToken string `json:"refresh_token" validate:"required"`
 }
+
+// BulkDeleteUserRequest represents the HTTP request body for bulk deleting users
+type BulkDeleteUserRequest struct {
+	IDs []uint `json:"ids" validate:"required,min=1"`
+}
