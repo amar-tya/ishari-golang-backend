@@ -1,23 +1,16 @@
 BEGIN;
 
--- Sequence
-CREATE SEQUENCE IF NOT EXISTS public.translations_id_seq;
-
 -- Table
 CREATE TABLE IF NOT EXISTS public.translations (
-    id integer NOT NULL DEFAULT nextval('translations_id_seq'::regclass),
+    id SERIAL PRIMARY KEY,
     verse_id integer NOT NULL,
     language_code varchar(10) NOT NULL,
     translation_text text NOT NULL,
     translator_name varchar(255),
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    deleted_at timestamp without time zone,
-    CONSTRAINT translations_pkey PRIMARY KEY (id),
-    CONSTRAINT unique_translation UNIQUE (verse_id, language_code)
+    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
+    deleted_at timestamp with time zone
 );
-
-ALTER SEQUENCE public.translations_id_seq OWNED BY public.translations.id;
 
 -- Foreign Keys
 ALTER TABLE public.translations
@@ -26,6 +19,7 @@ ALTER TABLE public.translations
     ON DELETE CASCADE;
 
 -- Indexes
+CREATE UNIQUE INDEX IF NOT EXISTS unique_translation ON public.translations (verse_id, language_code) WHERE deleted_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_translations_language ON public.translations USING btree (language_code);
 CREATE INDEX IF NOT EXISTS idx_translations_text ON public.translations USING gin (to_tsvector('simple'::regconfig, translation_text));
 CREATE INDEX IF NOT EXISTS idx_translations_verse_id ON public.translations USING btree (verse_id);

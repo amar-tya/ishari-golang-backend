@@ -65,13 +65,27 @@ func (r *userRepository) Delete(ctx context.Context, id uint) error {
 
 // Update modifies an existing user in the database
 func (r *userRepository) Update(ctx context.Context, user *entity.User) error {
-	return r.db.WithContext(ctx).
-		Model(user).
-		Updates(map[string]interface{}{
-			"username":  user.Username,
-			"email":     user.Email,
-			"is_active": user.IsActive,
-		}).Error
+	// Extract Current User ID from Context (Assuming middleware sets it)
+	// For now we default to an empty string if not found or we just use user.ID as a placeholder if it's a self-update
+	aktorID := ctx.Value("userID")
+	if aktorID == nil {
+		aktorID = "" // In a real app, make sure middleware sets this!
+	}
+
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		// Set the user_id for the PostgreSQL Trigger (Audit Log)
+		if aktorID != "" {
+			tx.Exec("SET LOCAL app.current_user_id = ?", aktorID)
+		}
+
+		return tx.Model(user).
+			Updates(map[string]interface{}{
+				"username":  user.Username,
+				"email":     user.Email,
+				"is_active": user.IsActive,
+				"role":      user.Role,
+			}).Error
+	})
 }
 
 // ListUsers retrieves paginated users with optional search

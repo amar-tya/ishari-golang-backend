@@ -1,3 +1,5 @@
+BEGIN;
+
 -- Create refresh_tokens table for persistent token management
 CREATE TABLE IF NOT EXISTS refresh_tokens (
     id SERIAL PRIMARY KEY,
@@ -18,3 +20,5 @@ CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id ON refresh_tokens(user_id)
 
 -- Index for cleanup of expired tokens
 CREATE INDEX IF NOT EXISTS idx_refresh_tokens_expires_at ON refresh_tokens(expires_at);
+
+COMMIT;
