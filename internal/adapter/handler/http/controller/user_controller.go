@@ -176,6 +176,7 @@ func (h *UserController) UpdateUser(c *fiber.Ctx) error {
 	input := portuc.UpdateUserInput{
 		Username: req.Username,
 		Email:    req.Email,
+		Role:     req.Role,
 		IsActive: req.IsActive,
 	}
 
@@ -308,6 +309,7 @@ func (h *UserController) toUserResponse(user *entity.User) dto.UserResponse {
 		ID:        user.ID,
 		Username:  user.Username,
 		Email:     user.Email,
+		Role:      user.Role,
 		IsActive:  user.IsActive,
 		CreatedAt: user.CreatedAt.UTC().Format(time.RFC3339),
 		UpdatedAt: user.UpdatedAt.UTC().Format(time.RFC3339),

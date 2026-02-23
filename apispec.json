@@ -2440,6 +2440,10 @@
             "format": "email",
             "example": "john@example.com"
           },
+          "role": {
+            "type": "string",
+            "example": "super_admin"
+          },
           "is_active": {
             "type": "boolean",
             "example": true
@@ -2465,6 +2469,7 @@
           "id",
           "username",
           "email",
+          "role",
           "is_active",
           "created_at",
           "updated_at"
@@ -2528,6 +2533,16 @@
             "nullable": true,
             "format": "email",
             "example": "john.updated@example.com"
+          },
+          "role": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "super_admin",
+              "admin_content",
+              "user"
+            ],
+            "example": "super_admin"
           },
           "is_active": {
             "type": "boolean",

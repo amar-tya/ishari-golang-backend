@@ -46,6 +46,7 @@ type LoginInput struct {
 type UpdateUserInput struct {
 	Username *string
 	Email    *string
+	Role     *string
 	IsActive *bool
 }
 

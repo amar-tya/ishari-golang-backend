@@ -135,6 +135,10 @@ func (uc *userUseCase) Update(ctx context.Context, id uint, input portuc.UpdateU
 		user.IsActive = *input.IsActive
 	}
 
+	if input.Role != nil {
+		user.Role = *input.Role
+	}
+
 	// Persist changes
 	if err := uc.userRepo.Update(ctx, user); err != nil {
 		return nil, err
