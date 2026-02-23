@@ -115,40 +115,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "book_id",
-            "in": "query",
-            "description": "Filter by book ID.",
-            "required": false,
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "name": "chapter",
-            "in": "query",
-            "description": "Filter by chapter title (partial match).",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "category",
-            "in": "query",
-            "description": "Filter by category (exact match).",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "Diwan",
-                "Muhud",
-                "Diba",
-                "Rawi",
-                "Muradah"
-              ]
-            }
           }
         ],
         "responses": {
@@ -438,30 +404,28 @@
             }
           },
           {
-            "name": "chapter_id",
+            "name": "book_id",
             "in": "query",
-            "description": "Filter by chapter ID.",
+            "description": "Filter by book ID.",
             "required": false,
             "schema": {
               "type": "integer"
             }
           },
           {
-            "name": "arabic_text",
+            "name": "category",
             "in": "query",
-            "description": "Filter by arabic text (partial match).",
+            "description": "Filter by category (exact match).",
             "required": false,
             "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "transliteration",
-            "in": "query",
-            "description": "Filter by transliteration (partial match).",
-            "required": false,
-            "schema": {
-              "type": "string"
+              "type": "string",
+              "enum": [
+                "Diwan",
+                "Muhud",
+                "Diba",
+                "Rawi",
+                "Muradah"
+              ]
             }
           }
         ],
@@ -1475,6 +1439,33 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "chapter_id",
+            "in": "query",
+            "description": "Filter by chapter ID.",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "arabic_text",
+            "in": "query",
+            "description": "Filter by arabic text (partial match).",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "transliteration",
+            "in": "query",
+            "description": "Filter by transliteration (partial match).",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -1851,6 +1842,33 @@
             "name": "search",
             "in": "query",
             "description": "Case-insensitive search term applied to translation text.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "verse_id",
+            "in": "query",
+            "description": "Filter by verse ID.",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "translator_name",
+            "in": "query",
+            "description": "Filter by translator name (partial match).",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "language_code",
+            "in": "query",
+            "description": "Filter by language code (exact match).",
             "required": false,
             "schema": {
               "type": "string"
