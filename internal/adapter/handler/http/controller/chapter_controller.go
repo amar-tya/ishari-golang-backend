@@ -41,7 +41,8 @@ func (c *ChapterController) List(ctx *fiber.Ctx) error {
 	category := ctx.Query("category", "")
 
 	var bookID *uint
-	if idStr := ctx.Query("book_id", ""); idStr != "" {
+	idStr := ctx.Query("book_id", ctx.Query("bookId", ""))
+	if idStr != "" {
 		if id, err := strconv.Atoi(idStr); err == nil {
 			uID := uint(id)
 			bookID = &uID

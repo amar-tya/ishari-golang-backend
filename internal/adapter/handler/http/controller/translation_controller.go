@@ -63,9 +63,10 @@ func (c *TranslationController) List(ctx *fiber.Ctx) error {
 	limit, _ := strconv.Atoi(ctx.Query("limit", "20"))
 	search := ctx.Query("search", "")
 
-	verseID, _ := strconv.Atoi(ctx.Query("verse_id", "0"))
-	translatorName := ctx.Query("translator_name", "")
-	languageCode := ctx.Query("language_code", "")
+	verseIDStr := ctx.Query("verse_id", ctx.Query("verseId", "0"))
+	verseID, _ := strconv.Atoi(verseIDStr)
+	translatorName := ctx.Query("translator_name", ctx.Query("translatorName", ""))
+	languageCode := ctx.Query("language_code", ctx.Query("languageCode", ""))
 
 	params := portuc.TranslationListParams{
 		Page:           uint(page),

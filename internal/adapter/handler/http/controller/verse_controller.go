@@ -105,14 +105,15 @@ func (c *VerseController) List(ctx *fiber.Ctx) error {
 	search := ctx.Query("search", "")
 
 	var chapterID *uint
-	if cidStr := ctx.Query("chapter_id"); cidStr != "" {
+	cidStr := ctx.Query("chapter_id", ctx.Query("chapterId", ""))
+	if cidStr != "" {
 		if cid, err := strconv.Atoi(cidStr); err == nil && cid > 0 {
 			u := uint(cid)
 			chapterID = &u
 		}
 	}
 
-	arabicText := ctx.Query("arabic_text", "")
+	arabicText := ctx.Query("arabic_text", ctx.Query("arabicText", ""))
 	transliteration := ctx.Query("transliteration", "")
 
 	params := portuc.ListParams{
