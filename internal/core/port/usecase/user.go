@@ -26,6 +26,7 @@ type UserUseCase interface {
 
 	// List returns paginated users with optional search
 	List(ctx context.Context, params ListUserParams) (*PaginatedResult[entity.User], error)
+	BulkDelete(ctx context.Context, ids []uint) error
 }
 
 // RegisterUserInput contains data required for user registration
@@ -45,6 +46,7 @@ type LoginInput struct {
 type UpdateUserInput struct {
 	Username *string
 	Email    *string
+	Role     *string
 	IsActive *bool
 }
 

@@ -35,6 +35,7 @@ type TokenClaims struct {
 	UserID   uint
 	Username string
 	Email    string
+	Role     string
 }
 
 // contextKey is a private type for context keys to avoid collisions

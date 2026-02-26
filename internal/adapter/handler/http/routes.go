@@ -9,10 +9,16 @@ import (
 
 // Controllers holds all HTTP controllers to be registered.
 type Controllers struct {
-	Health *controller.HealthController
-	Book   *controller.BookController
-	User   *controller.UserController
-	Auth   *controller.AuthController
+	Health      *controller.HealthController
+	Book        *controller.BookController
+	Chapter     *controller.ChapterController
+	User        *controller.UserController
+	Auth        *controller.AuthController
+	Verse       *controller.VerseController
+	Translation *controller.TranslationController
+	Bookmark    *controller.BookmarkController
+	Hadi        *controller.HadiController
+	Dashboard   *controller.DashboardController
 }
 
 // AuthDeps holds auth-related dependencies for route registration
@@ -22,23 +28,41 @@ type AuthDeps struct {
 
 // RegisterRoutes wires all module routes under a common API grouping.
 func RegisterRoutes(app *fiber.App, ctrls Controllers, authDeps *AuthDeps) {
-	v1 := app.Group("/api/v1")
+	api := app.Group("/api")
 
 	// Health routes (always public)
 	if ctrls.Health != nil {
-		RegisterHealthRoutes(v1, ctrls.Health)
+		RegisterHealthRoutes(api, ctrls.Health)
 	}
 
 	// Book and User routes (require authDeps for protected endpoints)
 	if authDeps != nil && authDeps.AuthUC != nil {
 		if ctrls.Book != nil {
-			RegisterBookRoutes(v1, ctrls.Book, authDeps.AuthUC)
+			RegisterBookRoutes(api, ctrls.Book, authDeps.AuthUC)
+		}
+		if ctrls.Chapter != nil {
+			RegisterChapterRoutes(api, ctrls.Chapter, authDeps.AuthUC)
 		}
 		if ctrls.User != nil {
-			RegisterUserRoutes(v1, ctrls.User, authDeps.AuthUC)
+			RegisterUserRoutes(api, ctrls.User, authDeps.AuthUC)
 		}
 		if ctrls.Auth != nil {
-			RegisterAuthRoutes(v1, ctrls.Auth, authDeps.AuthUC)
+			RegisterAuthRoutes(api, ctrls.Auth, authDeps.AuthUC)
+		}
+		if ctrls.Verse != nil {
+			RegisterVerseRoutes(api, ctrls.Verse, authDeps.AuthUC)
+		}
+		if ctrls.Translation != nil {
+			RegisterTranslationRoutes(api, ctrls.Translation, authDeps.AuthUC)
+		}
+		if ctrls.Bookmark != nil {
+			RegisterBookmarkRoutes(api, ctrls.Bookmark, authDeps.AuthUC)
+		}
+		if ctrls.Hadi != nil {
+			RegisterHadiRoutes(api, ctrls.Hadi, authDeps.AuthUC)
+		}
+		if ctrls.Dashboard != nil {
+			RegisterDashboardRoutes(api, ctrls.Dashboard, authDeps.AuthUC)
 		}
 	}
 }

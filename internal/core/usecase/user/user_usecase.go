@@ -135,6 +135,10 @@ func (uc *userUseCase) Update(ctx context.Context, id uint, input portuc.UpdateU
 		user.IsActive = *input.IsActive
 	}
 
+	if input.Role != nil {
+		user.Role = *input.Role
+	}
+
 	// Persist changes
 	if err := uc.userRepo.Update(ctx, user); err != nil {
 		return nil, err
@@ -194,6 +198,11 @@ func (uc *userUseCase) List(ctx context.Context, params portuc.ListUserParams) (
 		Limit:      params.Limit,
 		TotalPages: totalPages,
 	}, nil
+}
+
+// BulkDelete removes multiple users (soft delete)
+func (uc *userUseCase) BulkDelete(ctx context.Context, ids []uint) error {
+	return uc.userRepo.BulkDelete(ctx, ids)
 }
 
 // validateRegistration validates registration input

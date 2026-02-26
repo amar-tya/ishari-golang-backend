@@ -17,6 +17,7 @@ type LoginRequest struct {
 type UpdateUserRequest struct {
 	Username *string `json:"username,omitempty" validate:"omitempty,min=3,max=50"`
 	Email    *string `json:"email,omitempty" validate:"omitempty,email"`
+	Role     *string `json:"role,omitempty" validate:"omitempty,oneof=super_admin admin_content user"`
 	IsActive *bool   `json:"is_active,omitempty"`
 }
 
@@ -25,6 +26,7 @@ type UserResponse struct {
 	ID          uint    `json:"id"`
 	Username    string  `json:"username"`
 	Email       string  `json:"email"`
+	Role        string  `json:"role"`
 	IsActive    bool    `json:"is_active"`
 	LastLoginAt *string `json:"last_login_at,omitempty"`
 	CreatedAt   string  `json:"created_at"`
@@ -48,4 +50,9 @@ type AuthResponse struct {
 // RefreshTokenRequest represents the HTTP request for refreshing tokens
 type RefreshTokenRequest struct {
 	RefreshToken string `json:"refresh_token" validate:"required"`
+}
+
+// BulkDeleteUserRequest represents the HTTP request body for bulk deleting users
+type BulkDeleteUserRequest struct {
+	IDs []uint `json:"ids" validate:"required,min=1"`
 }

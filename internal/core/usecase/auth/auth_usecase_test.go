@@ -43,18 +43,19 @@ func (m *MockUserRepository) Update(ctx context.Context, u *entity.User) error {
 func (m *MockUserRepository) ListUsers(ctx context.Context, o, l int, s string) ([]entity.User, int64, error) {
 	return nil, 0, nil
 }
+func (m *MockUserRepository) BulkDelete(ctx context.Context, ids []uint) error { return nil }
 
 // MockTokenService for testing
 type MockTokenService struct {
-	GenerateAccessTokenFunc  func(userID uint, username, email string) (string, time.Time, error)
+	GenerateAccessTokenFunc  func(userID uint, username, email, role string) (string, time.Time, error)
 	GenerateRefreshTokenFunc func(userID uint) (string, time.Time, error)
 	ValidateAccessTokenFunc  func(token string) (*auth.Claims, error)
 	ValidateRefreshTokenFunc func(token string) (*auth.RefreshClaims, error)
 }
 
-func (m *MockTokenService) GenerateAccessToken(userID uint, username, email string) (string, time.Time, error) {
+func (m *MockTokenService) GenerateAccessToken(userID uint, username, email, role string) (string, time.Time, error) {
 	if m.GenerateAccessTokenFunc != nil {
-		return m.GenerateAccessTokenFunc(userID, username, email)
+		return m.GenerateAccessTokenFunc(userID, username, email, role)
 	}
 	return "access_token", time.Now().Add(15 * time.Minute), nil
 }
@@ -211,6 +212,7 @@ func TestAuthUseCase_Logout_Success(t *testing.T) {
 				UserID:   1,
 				Username: "testuser",
 				Email:    "test@example.com",
+				Role:     "super_admin",
 				Exp:      time.Now().Add(15 * time.Minute),
 			}, nil
 		},
@@ -280,5 +282,33 @@ func TestAuthUseCase_RefreshToken_Success(t *testing.T) {
 	}
 	if result.RefreshToken == "" {
 		t.Error("expected new refresh token")
+	}
+}
+
+func TestAuthUseCase_ValidateToken_Success(t *testing.T) {
+	mockRepo := &MockUserRepository{}
+	mockTokenService := &MockTokenService{
+		ValidateAccessTokenFunc: func(token string) (*auth.Claims, error) {
+			return &auth.Claims{
+				UserID:   1,
+				Username: "testuser",
+				Email:    "test@example.com",
+				Role:     "super_admin",
+				Exp:      time.Now().Add(15 * time.Minute),
+			}, nil
+		},
+	}
+	mockBlacklist := NewMockBlacklist()
+	mockHasher := &MockPasswordHasher{}
+
+	uc := auth.NewAuthUseCase(mockRepo, mockTokenService, mockBlacklist, mockHasher)
+
+	claims, err := uc.ValidateToken(context.Background(), "valid_token")
+
+	if err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+	if claims.Role != "super_admin" {
+		t.Errorf("expected role 'super_admin', got '%s'", claims.Role)
 	}
 }

@@ -8,7 +8,7 @@ import (
 // This abstraction allows the usecase to be independent of the JWT implementation
 type TokenService interface {
 	// GenerateAccessToken creates a new access token
-	GenerateAccessToken(userID uint, username, email string) (string, time.Time, error)
+	GenerateAccessToken(userID uint, username, email, role string) (string, time.Time, error)
 
 	// GenerateRefreshToken creates a new refresh token
 	GenerateRefreshToken(userID uint) (string, time.Time, error)
@@ -25,6 +25,7 @@ type Claims struct {
 	UserID   uint
 	Username string
 	Email    string
+	Role     string
 	Exp      time.Time
 }
 
