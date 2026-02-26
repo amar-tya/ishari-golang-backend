@@ -608,6 +608,152 @@
         ],
         "type": "object"
       },
+      "DashboardStats": {
+        "properties": {
+          "calculated_at": {
+            "example": "2025-12-01T10:00:00Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "total_chapters": {
+            "example": 114,
+            "type": "integer"
+          },
+          "total_hadis": {
+            "example": 50,
+            "type": "integer"
+          },
+          "total_users": {
+            "example": 100,
+            "type": "integer"
+          },
+          "total_verse_media": {
+            "example": 500,
+            "type": "integer"
+          },
+          "total_verses": {
+            "example": 6236,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total_users",
+          "total_hadis",
+          "total_chapters",
+          "total_verses",
+          "total_verse_media",
+          "calculated_at"
+        ],
+        "type": "object"
+      },
+      "CreateHadiRequest": {
+        "properties": {
+          "description": {
+            "example": "A renowned Quran reciter",
+            "nullable": true,
+            "type": "string"
+          },
+          "image_url": {
+            "example": "https://example.com/hadi.jpg",
+            "format": "uri",
+            "nullable": true,
+            "type": "string"
+          },
+          "name": {
+            "example": "Mishary Rashid Alafasy",
+            "maxLength": 255,
+            "minLength": 2,
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "UpdateHadiRequest": {
+        "properties": {
+          "description": {
+            "example": "A renowned Quran reciter",
+            "nullable": true,
+            "type": "string"
+          },
+          "image_url": {
+            "example": "https://example.com/hadi.jpg",
+            "format": "uri",
+            "nullable": true,
+            "type": "string"
+          },
+          "name": {
+            "example": "Mishary Rashid Alafasy",
+            "maxLength": 255,
+            "minLength": 2,
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "HadiResponse": {
+        "properties": {
+          "created_at": {
+            "example": "2025-12-01T10:00:00Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "description": {
+            "example": "A renowned Quran reciter",
+            "nullable": true,
+            "type": "string"
+          },
+          "id": {
+            "example": 1,
+            "type": "integer"
+          },
+          "image_url": {
+            "example": "https://example.com/hadi.jpg",
+            "format": "uri",
+            "nullable": true,
+            "type": "string"
+          },
+          "name": {
+            "example": "Mishary Rashid Alafasy",
+            "type": "string"
+          },
+          "updated_at": {
+            "example": "2025-12-01T10:00:00Z",
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "created_at",
+          "updated_at"
+        ],
+        "type": "object"
+      },
+      "HadiListResponse": {
+        "properties": {
+          "data": {
+            "items": {
+              "$ref": "#/components/schemas/HadiResponse"
+            },
+            "type": "array"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ListMeta"
+          }
+        },
+        "required": [
+          "data",
+          "meta"
+        ],
+        "type": "object"
+      },
       "RefreshTokenRequest": {
         "properties": {
           "refresh_token": {
@@ -3690,6 +3836,235 @@
         "summary": "Update verse",
         "tags": [
           "Verses"
+        ]
+      }
+    },
+    "/hadis": {
+      "get": {
+        "operationId": "listHadis",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 10,
+              "minimum": 1,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HadiListResponse"
+                }
+              }
+            },
+            "description": "List of hadis"
+          }
+        },
+        "summary": "List hadis",
+        "tags": [
+          "Hadis"
+        ]
+      },
+      "post": {
+        "operationId": "createHadi",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateHadiRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/HadiResponse"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Hadi created successfully"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Create hadi",
+        "tags": [
+          "Hadis"
+        ]
+      }
+    },
+    "/hadis/{id}": {
+      "delete": {
+        "operationId": "deleteHadi",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Hadi deleted successfully"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Delete hadi",
+        "tags": [
+          "Hadis"
+        ]
+      },
+      "get": {
+        "operationId": "getHadiById",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/HadiResponse"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Hadi details"
+          }
+        },
+        "summary": "Get hadi by ID",
+        "tags": [
+          "Hadis"
+        ]
+      },
+      "put": {
+        "operationId": "updateHadi",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateHadiRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/HadiResponse"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Hadi updated successfully"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Update hadi",
+        "tags": [
+          "Hadis"
+        ]
+      }
+    },
+    "/dashboard/stats": {
+      "get": {
+        "operationId": "getDashboardStats",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/DashboardStats"
+                    },
+                    "status": {
+                      "example": "success",
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Dashboard statistics retrieved successfully"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get dashboard statistics",
+        "tags": [
+          "Dashboard"
         ]
       }
     }

@@ -12,6 +12,8 @@ import (
 	bookusecase "ishari-backend/internal/core/usecase/book"
 	bookmarkusecase "ishari-backend/internal/core/usecase/bookmark"
 	chapterusecase "ishari-backend/internal/core/usecase/chapter"
+	dashboardusecase "ishari-backend/internal/core/usecase/dashboard"
+	hadiusecase "ishari-backend/internal/core/usecase/hadi"
 	translationusecase "ishari-backend/internal/core/usecase/translation"
 	userusecase "ishari-backend/internal/core/usecase/user"
 	verseusecase "ishari-backend/internal/core/usecase/verse"
@@ -56,6 +58,8 @@ func Build(cfg config.Config) (*App, error) {
 	translationRepo := postgres.NewTranslationRepository(db)
 	refreshTokenRepo := postgres.NewRefreshTokenRepository(db)
 	bookmarkRepo := postgres.NewBookmarkRepository(db)
+	hadiRepo := postgres.NewHadiRepository(db)
+	dashboardRepo := postgres.NewDashboardRepository(db)
 
 	// Token blacklist (database-backed)
 	tokenBlacklist := jwt.NewDatabaseBlacklist(refreshTokenRepo)
@@ -69,6 +73,8 @@ func Build(cfg config.Config) (*App, error) {
 	translationUC := translationusecase.NewTranslationUsecase(translationRepo, verseRepo, l)
 	authUC := authusecase.NewAuthUseCase(userRepo, jwtService, tokenBlacklist, passwordHasher)
 	bookmarkUC := bookmarkusecase.NewBookmarkUsecase(bookmarkRepo, verseRepo, l)
+	hadiUC := hadiusecase.NewHadiUseCase(hadiRepo)
+	dashboardUC := dashboardusecase.NewDashboardUseCase(dashboardRepo)
 
 	// HTTP server
 	server := http.NewServer(cfg.Server, l)
@@ -84,6 +90,8 @@ func Build(cfg config.Config) (*App, error) {
 	verseCtrl := controller.NewVerseController(verseUC, v, l)
 	translationCtrl := controller.NewTranslationController(translationUC, v, l)
 	bookmarkCtrl := controller.NewBookmarkController(bookmarkUC, v, l)
+	hadiCtrl := controller.NewHadiController(hadiUC, v, l)
+	dashboardCtrl := controller.NewDashboardController(dashboardUC, l)
 
 	http.RegisterRoutes(server.App, http.Controllers{
 		Health:      healthCtrl,
@@ -94,6 +102,8 @@ func Build(cfg config.Config) (*App, error) {
 		Verse:       verseCtrl,
 		Translation: translationCtrl,
 		Bookmark:    bookmarkCtrl,
+		Hadi:        hadiCtrl,
+		Dashboard:   dashboardCtrl,
 	}, &http.AuthDeps{
 		AuthUC: authUC,
 	})

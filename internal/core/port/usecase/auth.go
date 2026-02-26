@@ -35,4 +35,5 @@ type TokenClaims struct {
 	UserID   uint
 	Username string
 	Email    string
+	Role     string
 }

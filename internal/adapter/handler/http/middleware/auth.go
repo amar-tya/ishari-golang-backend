@@ -65,3 +65,32 @@ func GetTokenFromContext(c *fiber.Ctx) string {
 	}
 	return token
 }
+
+// RequireRoles restricts access to specific roles
+func RequireRoles(roles ...string) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		user := GetUserFromContext(c)
+		if user == nil {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"status":  "error",
+				"message": "unauthorized",
+			})
+		}
+
+		// Allow super_admin by default (optional, based on your business logic)
+		if user.Role == "super_admin" {
+			return c.Next()
+		}
+
+		for _, role := range roles {
+			if user.Role == role {
+				return c.Next()
+			}
+		}
+
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"status":  "error",
+			"message": "forbidden: insufficient permissions",
+		})
+	}
+}

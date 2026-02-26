@@ -50,7 +50,7 @@ func (uc *authUseCase) Login(ctx context.Context, input portuc.LoginInput) (*por
 	}
 
 	// Generate tokens
-	accessToken, expiresAt, err := uc.tokenService.GenerateAccessToken(user.ID, user.Username, user.Email)
+	accessToken, expiresAt, err := uc.tokenService.GenerateAccessToken(user.ID, user.Username, user.Email, user.Role)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func (uc *authUseCase) RefreshToken(ctx context.Context, refreshToken string) (*
 	}
 
 	// Generate new tokens
-	accessToken, expiresAt, err := uc.tokenService.GenerateAccessToken(user.ID, user.Username, user.Email)
+	accessToken, expiresAt, err := uc.tokenService.GenerateAccessToken(user.ID, user.Username, user.Email, user.Role)
 	if err != nil {
 		return nil, err
 	}
@@ -143,6 +143,7 @@ func (uc *authUseCase) ValidateToken(ctx context.Context, token string) (*portuc
 		UserID:   claims.UserID,
 		Username: claims.Username,
 		Email:    claims.Email,
+		Role:     claims.Role,
 	}, nil
 }
 

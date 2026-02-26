@@ -17,6 +17,8 @@ type Controllers struct {
 	Verse       *controller.VerseController
 	Translation *controller.TranslationController
 	Bookmark    *controller.BookmarkController
+	Hadi        *controller.HadiController
+	Dashboard   *controller.DashboardController
 }
 
 // AuthDeps holds auth-related dependencies for route registration
@@ -55,6 +57,12 @@ func RegisterRoutes(app *fiber.App, ctrls Controllers, authDeps *AuthDeps) {
 		}
 		if ctrls.Bookmark != nil {
 			RegisterBookmarkRoutes(api, ctrls.Bookmark, authDeps.AuthUC)
+		}
+		if ctrls.Hadi != nil {
+			RegisterHadiRoutes(api, ctrls.Hadi, authDeps.AuthUC)
+		}
+		if ctrls.Dashboard != nil {
+			RegisterDashboardRoutes(api, ctrls.Dashboard, authDeps.AuthUC)
 		}
 	}
 }
