@@ -10,6 +10,7 @@ import (
 	"ishari-backend/internal/core/usecase"
 	authusecase "ishari-backend/internal/core/usecase/auth"
 	bookusecase "ishari-backend/internal/core/usecase/book"
+	bookmarkusecase "ishari-backend/internal/core/usecase/bookmark"
 	chapterusecase "ishari-backend/internal/core/usecase/chapter"
 	translationusecase "ishari-backend/internal/core/usecase/translation"
 	userusecase "ishari-backend/internal/core/usecase/user"
@@ -54,6 +55,7 @@ func Build(cfg config.Config) (*App, error) {
 	verseRepo := postgres.NewVerseRepository(db)
 	translationRepo := postgres.NewTranslationRepository(db)
 	refreshTokenRepo := postgres.NewRefreshTokenRepository(db)
+	bookmarkRepo := postgres.NewBookmarkRepository(db)
 
 	// Token blacklist (database-backed)
 	tokenBlacklist := jwt.NewDatabaseBlacklist(refreshTokenRepo)
@@ -66,6 +68,7 @@ func Build(cfg config.Config) (*App, error) {
 	verseUC := verseusecase.NewVerseUsecase(verseRepo, chapterRepo, l)
 	translationUC := translationusecase.NewTranslationUsecase(translationRepo, verseRepo, l)
 	authUC := authusecase.NewAuthUseCase(userRepo, jwtService, tokenBlacklist, passwordHasher)
+	bookmarkUC := bookmarkusecase.NewBookmarkUsecase(bookmarkRepo, verseRepo, l)
 
 	// HTTP server
 	server := http.NewServer(cfg.Server, l)
@@ -80,6 +83,7 @@ func Build(cfg config.Config) (*App, error) {
 	authCtrl := controller.NewAuthController(authUC, v, l)
 	verseCtrl := controller.NewVerseController(verseUC, v, l)
 	translationCtrl := controller.NewTranslationController(translationUC, v, l)
+	bookmarkCtrl := controller.NewBookmarkController(bookmarkUC, v, l)
 
 	http.RegisterRoutes(server.App, http.Controllers{
 		Health:      healthCtrl,
@@ -89,6 +93,7 @@ func Build(cfg config.Config) (*App, error) {
 		Auth:        authCtrl,
 		Verse:       verseCtrl,
 		Translation: translationCtrl,
+		Bookmark:    bookmarkCtrl,
 	}, &http.AuthDeps{
 		AuthUC: authUC,
 	})
